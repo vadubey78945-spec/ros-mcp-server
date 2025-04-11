@@ -3,6 +3,7 @@ import socket
 import websocket
 import json
 from typing import List, Tuple, Dict, Any
+import time
 
 LOCAL_IP = "192.168.50.236" # Local IP
 ROSBRIDGE_IP = "192.168.50.90" # ROS Bridge Server IP
@@ -65,11 +66,16 @@ def close_websocket_connection():
 
 
 @mcp.tool()
-def pub_twist(linear: float, angular: float):
+def pub_twist(linear, angular):
     if not linear or not angular:
         print("Error: Linear and angular cannot be empty")
         return
     
+    if type(linear) != float:
+        linear = float(linear)
+    if type(angular) != float:
+        angular = float(angular)
+
     ws = create_websocket_connection()
     if not ws:
         return
@@ -100,14 +106,14 @@ def pub_twist(linear: float, angular: float):
         close_websocket_connection()
 
 @mcp.tool()
-def pub_twist_seq(linear: List[float], angular: List[float], duration: float):
+def pub_twist_seq(linear: List[float], angular: List[float], duration: List[float]):
     if not linear or not angular:
         print("Error: Linear and angular cannot be empty")
         return
     
     for i in range(len(linear)):
         pub_twist(linear[i], angular[i])
-        time.sleep(duration)
+        time.sleep(duration[i])
 
     try:
         close_websocket_connection()
