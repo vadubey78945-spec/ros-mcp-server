@@ -17,10 +17,10 @@ def create_websocket_connection():
     global ws_connection
     try:
         if ws_connection is None or not ws_connection.connected:
-            sock = socket.create_connection((ROSBRIDGE_IP, RO), source_address=(LOCAL_IP, 0))
+            sock = socket.create_connection((ROSBRIDGE_IP, ROSBRIDGE_PORT), source_address=(LOCAL_IP, 0))
             ws = websocket.WebSocket()
             ws.sock = sock
-            ws.connect(f"ws://{ROSBRIDGE_IP}:{RO}")
+            ws.connect(f"ws://{ROSBRIDGE_IP}:{ROSBRIDGE_PORT}")
             print("WebSocket connected")
             ws_connection = ws
         return ws_connection
