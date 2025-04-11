@@ -121,3 +121,6 @@ def pub_twist_seq(linear: List[float], angular: List[float], duration: List[floa
         print(f"Error closing WebSocket connection: {e}")
         
         
+if __name__ == "__main__":
+    # Initialize and run the server
+    mcp.run(transport='stdio')
