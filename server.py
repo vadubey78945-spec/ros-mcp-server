@@ -2,16 +2,14 @@ from mcp.server.fastmcp import FastMCP
 import socket
 import websocket
 import json
-from typing import List, Tuple, Dict, Any
+from typing import List, Any
 import time
 
-LOCAL_IP = "192.168.50.236" # Local IP
-ROSBRIDGE_IP = "192.168.50.90" # ROS Bridge Server IP
+LOCAL_IP = "192.168.50.236"
+ROSBRIDGE_IP = "192.168.50.90"
 ROSBRIDGE_PORT = 9090
 
 mcp = FastMCP("ros_mcp_server")
-
-# Global WebSocket connection
 ws_connection = None
 
 def create_websocket_connection():
@@ -41,40 +39,20 @@ def close_websocket_connection():
         finally:
             ws_connection = None
 
-# @mcp.tool()
-# def pub_text(text: str):
-#     if not text:
-#         print("Error: Text cannot be empty")
-#         return
-
-#     ws = create_websocket_connection()
-#     if not ws:
-#         return
-
-#     publish_message = {
-#         "op": "publish",
-#         "topic": "/text",
-#         "msg": {"data": text}
-#     }
-#     try:
-#         ws.send(json.dumps(publish_message))
-#         print(f"Sent text: {text}")
-#         close_websocket_connection()
-#     except Exception as e:
-#         print(f"Failed to send text message: {e}")
-#         close_websocket_connection()  # 연결이 끊어진 경우 재연결을 위해 연결을 닫음
-
+def to_float(value: Any) -> float:
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        raise ValueError(f"Invalid value for float conversion: {value}")
 
 @mcp.tool()
-def pub_twist(linear, angular):
-    if not linear or not angular:
-        print("Error: Linear and angular cannot be empty")
+def pub_twist(linear: Any, angular: Any):
+    try:
+        linear = to_float(linear)
+        angular = to_float(angular)
+    except ValueError as e:
+        print(e)
         return
-    
-    if type(linear) != float:
-        linear = float(linear)
-    if type(angular) != float:
-        angular = float(angular)
 
     ws = create_websocket_connection()
     if not ws:
@@ -84,16 +62,8 @@ def pub_twist(linear, angular):
         "op": "publish",
         "topic": "/cmd_vel",
         "msg": {
-            "linear": {
-                "x": linear,
-                "y": 0,
-                "z": 0
-            },
-            "angular": {
-                "x": 0,
-                "y": 0,
-                "z": angular
-            }
+            "linear": {"x": linear, "y": 0, "z": 0},
+            "angular": {"x": 0, "y": 0, "z": angular}
         }
     }
 
@@ -106,21 +76,24 @@ def pub_twist(linear, angular):
         close_websocket_connection()
 
 @mcp.tool()
-def pub_twist_seq(linear: List[float], angular: List[float], duration: List[float]):
-    if not linear or not angular:
-        print("Error: Linear and angular cannot be empty")
+def pub_twist_seq(linear: List[Any], angular: List[Any], duration: List[Any]):
+    try:
+        linear_floats = [to_float(l) for l in linear]
+        angular_floats = [to_float(a) for a in angular]
+        duration_floats = [to_float(d) for d in duration]
+    except ValueError as e:
+        print(e)
         return
-    
-    for i in range(len(linear)):
-        pub_twist(linear[i], angular[i])
-        time.sleep(duration[i])
+
+    for l, a, d in zip(linear_floats, angular_floats, duration_floats):
+        pub_twist(l, a)
+        time.sleep(d)
 
     try:
         close_websocket_connection()
     except Exception as e:
         print(f"Error closing WebSocket connection: {e}")
-        
-        
+
 if __name__ == "__main__":
     # Initialize and run the server
     mcp.run(transport='stdio')
