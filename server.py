@@ -46,10 +46,10 @@ def to_float(value: Any) -> float:
         raise ValueError(f"Invalid value for float conversion: {value}")
 
 @mcp.tool()
-def pub_twist(linear: Any, angular: Any):
+def pub_twist(linear: List[Any], angular: List[Any]):
     try:
-        linear = to_float(linear)
-        angular = to_float(angular)
+        linear_floats = [to_float(l) for l in linear]
+        angular_floats = [to_float(a) for a in angular]
     except ValueError as e:
         print(e)
         return
@@ -62,8 +62,8 @@ def pub_twist(linear: Any, angular: Any):
         "op": "publish",
         "topic": "/cmd_vel",
         "msg": {
-            "linear": {"x": linear, "y": 0, "z": 0},
-            "angular": {"x": 0, "y": 0, "z": angular}
+            "linear": {"x": linear_floats[0], "y": 0, "z": 0},
+            "angular": {"x": 0, "y": 0, "z": angular_floats[2]}
         }
     }
 
@@ -86,6 +86,8 @@ def pub_twist_seq(linear: List[Any], angular: List[Any], duration: List[Any]):
         return
 
     for l, a, d in zip(linear_floats, angular_floats, duration_floats):
+        l = [l, 0, 0]
+        a = [0, 0, a]
         pub_twist(l, a)
         time.sleep(d)
 
