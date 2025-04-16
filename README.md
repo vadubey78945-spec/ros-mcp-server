@@ -1,5 +1,5 @@
 ## Overview
-
+<center><img src="https://github.com/lpigeon/ros_mcp_server/blob/main/img/framework.png"/></center>
 The ROS MCP Server is designed to facilitate the control of robotic movement by providing a set of functions that allow for precise manipulation of linear and angular velocities. This enables the robot to perform complex maneuvers and navigate through various environments efficiently.
 
 ## Installation
@@ -66,8 +66,18 @@ ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 ### 3. Run any AI system that has imported ros_mcp_server.
 
 ### 4. Type "Make the robot move forward.".
+<center><img src="https://github.com/lpigeon/ros_mcp_server/blob/main/img/how_to_use_1.png" width="500"/></center>
 
 ### 5. Check `rosbridge_server` and `ros topic`.
+- `rosbridge_server`
+<center><img src="https://github.com/lpigeon/ros_mcp_server/blob/main/img/how_to_use_2.png" /></center>
+
+- `ros topic`
+<center><img src="https://github.com/lpigeon/ros_mcp_server/blob/main/img/how_to_use_3.png" /></center>
 
 ## Simulation Test
 MCP-based control using the MOCA mobile manipulator within the NVIDIA Isaac Sim simulation environment. 
+
+<center><img src="https://github.com/lpigeon/ros_mcp_server/blob/main/img/test_1.gif" width="500"/></center>
+
+<center><img src="https://github.com/lpigeon/ros_mcp_server/blob/main/img/test_2.gif" width="500"/></center>
