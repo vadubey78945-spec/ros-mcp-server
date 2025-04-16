@@ -38,12 +38,36 @@ Set MCP setting to mcp.json.
 ### pub_twist
 - **Purpose**: Sends movement commands to the robot by setting linear and angular velocities.
 - **Parameters**:
-  - `linear`: Linear velocity (float)
-  - `angular`: Angular velocity (float)
+  - `linear`: Linear velocity (List[Any])
+  - `angular`: Angular velocity (List[Any])
 
 ### pub_twist_seq
 - **Purpose**: Sends a sequence of movement commands to the robot, allowing for multi-step motion control.
 - **Parameters**:
-  - `linear`: List of linear velocities (number[])
-  - `angular`: List of angular velocities (number[])
-  - `duration`: List of durations for each step (number[])
+  - `linear`: List of linear velocities (List[Any])
+  - `angular`: List of angular velocities (List[Any])
+  - `duration`: List of durations for each step (List[Any])
+
+
+## How To Use
+### 1. Set IP and Port to connect rosbridge.
+- Open `server.py` and change your `LOCAL_IP`, `ROSBRIDGE_IP` and `ROSBRIDGE_PORT`. (`ROSBRIDGE_PORT`'s default value is `9090`)
+
+### 2. Run rosbridge server.
+ROS 1
+```bash
+roslaunch rosbridge_server rosbridge_websocket.launch
+```
+ROS 2
+```bash
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+```
+
+### 3. Run any AI system that has imported ros_mcp_server.
+
+### 4. Type "Make the robot move forward.".
+
+### 5. Check `rosbridge_server` and `ros topic`.
+
+## Simulation Test
+MCP-based control using the MOCA mobile manipulator within the NVIDIA Isaac Sim simulation environment. 
