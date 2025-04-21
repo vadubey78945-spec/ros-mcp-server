@@ -1,8 +1,17 @@
 ## Overview
+[![smithery badge](https://smithery.ai/badge/@lpigeon/ros_mcp_server)](https://smithery.ai/server/@lpigeon/ros_mcp_server)
 <center><img src="https://github.com/lpigeon/ros_mcp_server/blob/main/img/framework.png"/></center>
 The ROS MCP Server is designed to facilitate the control of robotic movement by providing a set of functions that allow for precise manipulation of linear and angular velocities. This enables the robot to perform complex maneuvers and navigate through various environments efficiently.
 
 ## Installation
+
+### Installing via Smithery
+
+To install ros_mcp_server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@lpigeon/ros_mcp_server):
+
+```bash
+npx -y @smithery/cli install @lpigeon/ros_mcp_server --client claude
+```
 
 ### `uv` Installation
 - To install `uv`, you can use the following command:
