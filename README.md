@@ -87,6 +87,4 @@ ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 ## Simulation Test
 MCP-based control using the MOCA mobile manipulator within the NVIDIA Isaac Sim simulation environment. 
 
-<center><img src="https://github.com/lpigeon/ros_mcp_server/blob/main/img/test_1.gif" width="500"/></center>
-
-<center><img src="https://github.com/lpigeon/ros_mcp_server/blob/main/img/test_2.gif" width="500"/></center>
+<center><img src="https://github.com/lpigeon/ros_mcp_server/blob/main/img/result.gif" /></center>
