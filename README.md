@@ -1,5 +1,9 @@
 ## Overview
+![Static Badge](https://img.shields.io/badge/ROS-Available-green)
+![Static Badge](https://img.shields.io/badge/ROS2-Available-green)
 [![smithery badge](https://smithery.ai/badge/@lpigeon/ros_mcp_server)](https://smithery.ai/server/@lpigeon/ros_mcp_server)
+![Static Badge](https://img.shields.io/badge/license-MIT-blue)
+
 <center><img src="https://github.com/lpigeon/ros_mcp_server/blob/main/img/framework.png"/></center>
 The ROS MCP Server is designed to facilitate the control of robotic movement by providing a set of functions that allow for precise manipulation of linear and angular velocities. This enables the robot to perform complex maneuvers and navigate through various environments efficiently.
 
