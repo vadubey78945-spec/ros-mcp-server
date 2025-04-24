@@ -17,6 +17,8 @@ To install ros_mcp_server for Claude Desktop automatically via [Smithery](https:
 npx -y @smithery/cli install @lpigeon/ros_mcp_server --client claude
 ```
 
+### Installing Locally
+
 ### `uv` Installation
 - To install `uv`, you can use the following command:
 ```bash
@@ -27,7 +29,7 @@ or
 pip install uv
 ```
 
-- Create virtual environment and activate it
+- Create virtual environment and activate it (Optional)
 ```bash
 uv venv
 source .venv/bin/activate
