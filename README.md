@@ -1,7 +1,7 @@
 ## Overview
 ![Static Badge](https://img.shields.io/badge/ROS-Available-green)
 ![Static Badge](https://img.shields.io/badge/ROS2-Available-green)
-[![smithery badge](https://smithery.ai/badge/@lpigeon/ros_mcp_server)](https://smithery.ai/server/@lpigeon/ros_mcp_server)
+[![smithery badge](https://smithery.ai/badge/@lpigeon/ros-mcp-server)](https://smithery.ai/server/@lpigeon/ros-mcp-server)
 ![Static Badge](https://img.shields.io/badge/license-MIT-blue)
 
 <center><img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/framework.png"/></center>
@@ -11,10 +11,10 @@ The ROS MCP Server is designed to facilitate the control of robotic movement by 
 
 ### Installing via Smithery
 
-To install ``ros-mcp-server`` for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@lpigeon/ros_mcp_server):
+To install ``ros-mcp-server`` for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@lpigeon/ros-mcp-server):
 
 ```bash
-npx -y @smithery/cli install @lpigeon/ros_mcp_server --client claude
+npx -y @smithery/cli install @lpigeon/ros-mcp-server --client claude
 ```
 
 ### Installing Locally
