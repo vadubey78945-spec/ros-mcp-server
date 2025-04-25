@@ -9,7 +9,7 @@ LOCAL_IP = "192.168.50.236"
 ROSBRIDGE_IP = "192.168.50.90"
 ROSBRIDGE_PORT = 9090
 
-mcp = FastMCP("ros_mcp_server")
+mcp = FastMCP("ros-mcp-server")
 ws_connection = None
 
 def create_websocket_connection():
