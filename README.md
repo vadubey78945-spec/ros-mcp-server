@@ -5,7 +5,12 @@
 ![Static Badge](https://img.shields.io/badge/license-MIT-blue)
 
 <center><img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/framework.png"/></center>
-The ROS MCP Server is designed to facilitate the control of robotic movement by providing a set of functions that allow for precise manipulation of linear and angular velocities. This enables the robot to perform complex maneuvers and navigate through various environments efficiently.
+
+The ROS MCP Server is designed to support robots in performing complex tasks and adapting effectively to various environments by providing a set of functions that transform natural language commands, entered by a user through an LLM, into ROS commands for robot control. Furthermore, by utilizing ``rosbridge``, it is configured to operate with both ``ROS`` and ``ROS2`` systems, and its WebSocket-based communication enables broad applicability across diverse platforms.
+
+The currently supported message type is:
+
+- geometry_msgs/Twist
 
 ## Installation
 
