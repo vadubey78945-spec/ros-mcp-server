@@ -31,6 +31,8 @@ class Twist:
             }
         }
         self.publisher.send(msg)
+        
+        return msg
 
     def publish_sequence(self, linear_seq: List[Any], angular_seq: List[Any], duration_seq: List[Any]):
         import time

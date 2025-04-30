@@ -1,6 +1,7 @@
 import socket
 import json
 import websocket
+import base64
 
 class WebSocketManager:
     def __init__(self, ip: str, port: int, local_ip: str):
@@ -22,10 +23,28 @@ class WebSocketManager:
         self.connect()
         if self.ws:
             try:
-                self.ws.send(json.dumps(message))
+                # Ensure message is JSON serializable
+                json_msg = json.dumps(message)
+                self.ws.send(json_msg)
+            except TypeError as e:
+                print(f"[WebSocket] JSON serialization error: {e}")
+                self.close()
             except Exception as e:
                 print(f"[WebSocket] Send error: {e}")
                 self.close()
+
+
+    def receive_binary(self) -> bytes:
+        self.connect()
+        if self.ws:
+            try:
+                raw = self.ws.recv()  # raw is JSON string (type: str)
+                return raw
+            except Exception as e:
+                print(f"Receive error: {e}")
+                self.close()
+        return b""
+
 
     def close(self):
         if self.ws and self.ws.connected:
