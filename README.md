@@ -2,7 +2,7 @@
 ![Static Badge](https://img.shields.io/badge/ROS-Available-green)
 ![Static Badge](https://img.shields.io/badge/ROS2-Available-green)
 [![smithery badge](https://smithery.ai/badge/@lpigeon/ros-mcp-server)](https://smithery.ai/server/@lpigeon/ros-mcp-server)
-![Static Badge](https://img.shields.io/badge/license-MIT-blue)
+![Static Badge](https://img.shields.io/badge/License-MIT-blue)
 
 <center><img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/framework.png"/></center>
 
@@ -11,6 +11,7 @@ The ROS MCP Server is designed to support robots in performing complex tasks and
 The currently supported message type is:
 
 - geometry_msgs/Twist
+- sensor_msgs/Image
 
 ## Installation
 
@@ -67,7 +68,11 @@ Set MCP setting to mcp.json.
   - `linear`: List of linear velocities (List[Any])
   - `angular`: List of angular velocities (List[Any])
   - `duration`: List of durations for each step (List[Any])
-
+ 
+### sub_image
+- **Purpose**: Receive images from the robot's point of view or of the surrounding environment.
+- **Parameters**:
+  - `save_path`: By default, the image is saved to the ``Downloads`` folder.
 
 ## How To Use
 ### 1. Set IP and Port to connect rosbridge.
