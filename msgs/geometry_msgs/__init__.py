@@ -1,1 +1,1 @@
-from .twist import Message as TwistMessage
+from .twist import Twist

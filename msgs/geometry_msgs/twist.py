@@ -1,5 +1,3 @@
-# msgs/geometry_msgs/twist.py
-
 from typing import List, Any, Protocol
 
 
@@ -15,7 +13,7 @@ def to_float(value: Any) -> float:
         raise ValueError(f"Invalid float value: {value}")
 
 
-class Message:
+class Twist:
     def __init__(self, publisher: Publisher, topic: str = "/cmd_vel"):
         self.publisher = publisher
         self.topic = topic
