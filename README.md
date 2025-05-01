@@ -43,6 +43,7 @@ source .venv/bin/activate
 
 ### MCP Server Configuration
 Set MCP setting to mcp.json.
+
 ```bash
 "ros-mcp-server": {
   "command": "uv",
@@ -55,7 +56,24 @@ Set MCP setting to mcp.json.
 }
 ```
 
+If you use Claude Desktop, you can find mcp.json using the following command:
+
+- MacOS/Linux
+```bash
+code ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+
+- Windows
+```bash
+code $env:AppData\Claude\claude_desktop_config.json
+```
+
 ## MCP Functions
+
+### get_topics
+- **Purpose**: Retrieves the list of available topics from the robot's ROS system.
+- **Returns**: List of topics (List[Any])
+
 ### pub_twist
 - **Purpose**: Sends movement commands to the robot by setting linear and angular velocities.
 - **Parameters**:

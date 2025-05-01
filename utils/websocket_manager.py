@@ -44,7 +44,32 @@ class WebSocketManager:
                 print(f"Receive error: {e}")
                 self.close()
         return b""
-
+    
+    def get_topics(self) -> list[tuple[str, str]]:
+        self.connect()
+        if self.ws:
+            try:
+                self.send({
+                    "op": "call_service",
+                    "service": "/rosapi/topics",
+                    "id": "get_topics_request_1"
+                })
+                response = self.receive_binary()
+                print(f"[WebSocket] Received response: {response}")
+                if response:
+                    data = json.loads(response)
+                    if "values" in data:
+                        topics = data["values"].get("topics", [])
+                        types = data["values"].get("types", [])
+                        if topics and types and len(topics) == len(types):
+                            return list(zip(topics, types))
+                        else:
+                            print("[WebSocket] Mismatch in topics and types length")
+            except json.JSONDecodeError as e:
+                print(f"[WebSocket] JSON decode error: {e}")
+            except Exception as e:
+                print(f"[WebSocket] Error: {e}")
+        return []
 
     def close(self):
         if self.ws and self.ws.connected:

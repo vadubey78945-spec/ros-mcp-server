@@ -14,6 +14,19 @@ ws_manager = WebSocketManager(ROSBRIDGE_IP, ROSBRIDGE_PORT, LOCAL_IP)
 twist = Twist(ws_manager, topic="/cmd_vel")
 image = Image(ws_manager, topic="/camera/image_raw")
 
+@mcp.tool()
+def get_topics():
+    topic_info = ws_manager.get_topics()
+    ws_manager.close()
+
+    if topic_info:
+        topics, types = zip(*topic_info)
+        return {
+            "topics": list(topics),
+            "types": list(types)
+        }
+    else:
+        return "No topics found"
 
 @mcp.tool()
 def pub_twist(linear: List[Any], angular: List[Any]):
@@ -41,4 +54,5 @@ def sub_image():
         return "No image data received"
 
 if __name__ == "__main__":
+    get_topics()
     mcp.run(transport="stdio")
