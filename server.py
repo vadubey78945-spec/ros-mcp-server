@@ -54,5 +54,4 @@ def sub_image():
         return "No image data received"
 
 if __name__ == "__main__":
-    get_topics()
     mcp.run(transport="stdio")
