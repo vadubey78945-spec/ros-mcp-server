@@ -16,6 +16,11 @@ Research based on this project can be found in the video linked below.
 - geometry_msgs/Twist
 - sensor_msgs/Image
 
+## Contributing
+Contributions are welcome!  
+Whether you're fixing a typo, adding a new function, or suggesting improvements, your help is appreciated.  
+Please follow the [contributing guidelines](CONTRIBUTING.md) for more details on how to contribute to this project.
+
 ## Installation
 
 ### Installing via Smithery
