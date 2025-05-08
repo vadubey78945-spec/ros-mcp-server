@@ -15,6 +15,16 @@ Research based on this project can be found in the video linked below.
 
 - geometry_msgs/Twist
 - sensor_msgs/Image
+- sensor_msgs/JointState
+
+## Features
+
+- **WebSocket-based universal compatibility**: Communicates with both ROS and ROS2 systems using rosbridge, enabling seamless integration regardless of ROS version.
+- **Cross-platform support**: Works on Linux, Windows, and MacOS, making it suitable for diverse development and deployment environments.
+- **Easy integration with LLMs and AI systems**: Natural language commands can be directly translated into robot actions via MCP functions.
+- **Extensible function set**: Easily add new robot control or sensor functions by extending the MCP tool interface.
+- **No ROS node modification required**: Interacts with existing ROS/ROS2 topics and services without changing your robot's core code.
+- **Native ROS/ROS2 command compatibility**: Optionally supports using local ROS/ROS2 libraries, so you can run native ROS commands and tools alongside WebSocket-based control. 
 
 ## Contributing
 Contributions are welcome!  
@@ -78,27 +88,7 @@ code $env:AppData\Claude\claude_desktop_config.json
 
 ## MCP Functions
 
-### get_topics
-- **Purpose**: Retrieves the list of available topics from the robot's ROS system.
-- **Returns**: List of topics (List[Any])
-
-### pub_twist
-- **Purpose**: Sends movement commands to the robot by setting linear and angular velocities.
-- **Parameters**:
-  - `linear`: Linear velocity (List[Any])
-  - `angular`: Angular velocity (List[Any])
-
-### pub_twist_seq
-- **Purpose**: Sends a sequence of movement commands to the robot, allowing for multi-step motion control.
-- **Parameters**:
-  - `linear`: List of linear velocities (List[Any])
-  - `angular`: List of angular velocities (List[Any])
-  - `duration`: List of durations for each step (List[Any])
- 
-### sub_image
-- **Purpose**: Receive images from the robot's point of view or of the surrounding environment.
-- **Parameters**:
-  - `save_path`: By default, the image is saved to the ``Downloads`` folder.
+You can find the list of functions in the [MCPFUNCTIONS.md](MCPFUNCTIONS.md).
 
 ## How To Use
 ### 1. Set IP and Port to connect rosbridge.
