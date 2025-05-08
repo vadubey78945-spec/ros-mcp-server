@@ -176,4 +176,7 @@ pyrightconfig.json
 # DS Store
 .DS_Store
 
+# .vscode
+.vscode/
+
 # End of https://www.toptal.com/developers/gitignore/api/python
