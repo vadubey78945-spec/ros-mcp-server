@@ -63,22 +63,34 @@ source .venv/bin/activate
 Set MCP setting to mcp.json.
 
 ```bash
-"ros-mcp-server": {
-  "command": "uv",
-  "args": [
-    "--directory",
-    "/ABSOLUTE/PATH/TO/PARENT/FOLDER/ros-mcp-server",,
-    "run",
-    "server.py"
-  ]
+{
+  "mcpServers": {
+    "ros-mcp-server": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/ABSOLUTE/PATH/TO/PARENT/FOLDER/ros-mcp-server",,
+        "run",
+        "server.py"
+      ]
+    }
+  }
 }
 ```
 
 If you use Claude Desktop, you can find mcp.json using the following command:
 
-- MacOS/Linux
+- MacOS
 ```bash
 code ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+
+- Linux(Ubuntu)
+  
+You can install Claude Desktop to use [claude-desktop-debian](https://github.com/aaddrick/claude-desktop-debian).
+
+```bash
+code ~/.config/Claude/claude_desktop_config.json
 ```
 
 - Windows
