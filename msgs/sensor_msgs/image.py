@@ -62,9 +62,11 @@ class Image:
 
             # Save image
             if save_path is None:
-                downloads_dir = Path.home() / "Downloads"
+                downloads_dir = Path(__file__).resolve().parents[2] / "screenshots"
+                if not downloads_dir.exists():
+                    downloads_dir.mkdir(parents=True)
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                save_path = downloads_dir / f"image_{timestamp}.png"
+                save_path = downloads_dir / f"{timestamp}.png"
 
             Path(save_path).parent.mkdir(parents=True, exist_ok=True)
             cv2.imwrite(str(save_path), img_cv)

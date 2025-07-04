@@ -6,8 +6,8 @@ from utils.websocket_manager import WebSocketManager
 from msgs.geometry_msgs import Twist
 from msgs.sensor_msgs import Image, JointState
 
-LOCAL_IP = "192.168.50.90"
-ROSBRIDGE_IP = "192.168.50.90"
+LOCAL_IP = "LOCAL_IP"  # Replace with your local IP address
+ROSBRIDGE_IP = "ROSBRIDGE_IP"  # Replace with your rosbridge server IP address
 ROSBRIDGE_PORT = 9090
 
 mcp = FastMCP("ros-mcp-server")
