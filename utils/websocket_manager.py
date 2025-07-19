@@ -1,6 +1,6 @@
 import socket
 import json
-import websocket
+import websocket._core as websocket  # Fix the import
 import base64
 
 class WebSocketManager:
@@ -12,12 +12,14 @@ class WebSocketManager:
 
     def connect(self):
         if self.ws is None or not self.ws.connected:
-            sock = socket.create_connection((self.ip, self.port), source_address=(self.local_ip, 0))
-            ws = websocket.WebSocket()
-            ws.sock = sock
-            ws.connect(f"ws://{self.ip}:{self.port}")
-            self.ws = ws
-            print("[WebSocket] Connected")
+            try:
+                # Use websocket.create_connection instead of manual socket management
+                url = f"ws://{self.ip}:{self.port}"
+                self.ws = websocket.create_connection(url)
+                print("[WebSocket] Connected")
+            except Exception as e:
+                print(f"[WebSocket] Connection error: {e}")
+                self.ws = None
 
     def send(self, message: dict):
         self.connect()
@@ -32,7 +34,6 @@ class WebSocketManager:
             except Exception as e:
                 print(f"[WebSocket] Send error: {e}")
                 self.close()
-
 
     def receive_binary(self) -> bytes:
         self.connect()
@@ -58,13 +59,18 @@ class WebSocketManager:
                 print(f"[WebSocket] Received response: {response}")
                 if response:
                     data = json.loads(response)
+                    # rosapi returns topics and types directly in the values field
                     if "values" in data:
                         topics = data["values"].get("topics", [])
                         types = data["values"].get("types", [])
                         if topics and types and len(topics) == len(types):
                             return list(zip(topics, types))
                         else:
-                            print("[WebSocket] Mismatch in topics and types length")
+                            print(f"[WebSocket] Mismatch in topics and types length: {len(topics)} vs {len(types)}")
+                            print(f"[WebSocket] Topics: {topics}")
+                            print(f"[WebSocket] Types: {types}")
+                    else:
+                        print(f"[WebSocket] No 'values' key in response: {data}")
             except json.JSONDecodeError as e:
                 print(f"[WebSocket] JSON decode error: {e}")
             except Exception as e:
@@ -72,7 +78,7 @@ class WebSocketManager:
         return []
 
     def close(self):
-        if self.ws and self.ws.connected:
+        if self.ws and hasattr(self.ws, 'close'):
             try:
                 self.ws.close()
                 print("[WebSocket] Closed")
