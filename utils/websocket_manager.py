@@ -1,6 +1,6 @@
 import socket
 import json
-import websocket._core as websocket  # Fix the import
+import websocket._core as websocket
 import base64
 
 class WebSocketManager:
@@ -36,6 +36,7 @@ class WebSocketManager:
                 print(f"[WebSocket] Send error: {e}")
                 self.close()
 
+
     def receive_binary(self) -> bytes:
         self.connect()
         if self.ws:
@@ -60,18 +61,13 @@ class WebSocketManager:
                 print(f"[WebSocket] Received response: {response}")
                 if response:
                     data = json.loads(response)
-                    # rosapi returns topics and types directly in the values field
                     if "values" in data:
                         topics = data["values"].get("topics", [])
                         types = data["values"].get("types", [])
                         if topics and types and len(topics) == len(types):
                             return list(zip(topics, types))
                         else:
-                            print(f"[WebSocket] Mismatch in topics and types length: {len(topics)} vs {len(types)}")
-                            print(f"[WebSocket] Topics: {topics}")
-                            print(f"[WebSocket] Types: {types}")
-                    else:
-                        print(f"[WebSocket] No 'values' key in response: {data}")
+                            print("[WebSocket] Mismatch in topics and types length")
             except json.JSONDecodeError as e:
                 print(f"[WebSocket] JSON decode error: {e}")
             except Exception as e:
@@ -79,7 +75,7 @@ class WebSocketManager:
         return []
 
     def close(self):
-        if self.ws and hasattr(self.ws, 'close'):
+        if self.ws and self.ws.connected:
             try:
                 self.ws.close()
                 print("[WebSocket] Closed")
