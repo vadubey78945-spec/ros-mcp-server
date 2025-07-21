@@ -1,6 +1,6 @@
 import socket
 import json
-import websocket._core as websocket  # Fix the import
+import websocket._core as websocket
 import base64
 
 class WebSocketManager:
