@@ -35,6 +35,7 @@ class WebSocketManager:
                 print(f"[WebSocket] Send error: {e}")
                 self.close()
 
+
     def receive_binary(self) -> bytes:
         self.connect()
         if self.ws:
@@ -59,7 +60,6 @@ class WebSocketManager:
                 print(f"[WebSocket] Received response: {response}")
                 if response:
                     data = json.loads(response)
-                    # rosapi returns topics and types directly in the values field
                     if "values" in data:
                         topics = data["values"].get("topics", [])
                         types = data["values"].get("types", [])
@@ -67,7 +67,6 @@ class WebSocketManager:
                             return list(zip(topics, types))
                         else:
                             print("[WebSocket] Mismatch in topics and types length")
-
             except json.JSONDecodeError as e:
                 print(f"[WebSocket] JSON decode error: {e}")
             except Exception as e:
