@@ -1,8 +1,11 @@
 from typing import List, Any, Protocol
-
+import json
 
 class Publisher(Protocol):
     def send(self, message: dict) -> None:
+        ...
+
+    def receive_binary(self) -> bytes:
         ...
 
 
@@ -45,3 +48,34 @@ class Twist:
             a = angular_flat[i*3:(i+1)*3]
             self.publish(l, a)
             time.sleep(duration_f[i])
+
+    def subscribe(self, timeout: float = 2.0):
+        """
+        Subscribe to the Twist topic and return the latest message.
+
+        Args:
+            timeout (float): Timeout in seconds for receiving a message.
+
+        Returns:
+            str | None: JSON-formatted message data if available, otherwise None.
+        """
+        # Send a subscription request
+        subscribe_msg = {
+            "op": "subscribe",
+            "topic": self.topic
+        }
+        self.publisher.send(subscribe_msg)
+
+        # Wait for a message
+        raw = self.publisher.receive_binary()
+        if not raw:
+            return None
+
+        try:
+            msg = json.loads(raw)
+            if "msg" in msg:
+                return json.dumps(msg["msg"], indent=2, ensure_ascii=False)
+            return json.dumps(msg, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print(f"[Twist] Failed to parse message: {e}")
+            return None

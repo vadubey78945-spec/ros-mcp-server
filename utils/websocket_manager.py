@@ -15,8 +15,9 @@ class WebSocketManager:
             try:
                 # Use websocket.create_connection instead of manual socket management
                 url = f"ws://{self.ip}:{self.port}"
-                self.ws = websocket.create_connection(url)
-                print("[WebSocket] Connected")
+                # Global timeout for all WebSocket operations
+                self.ws = websocket.create_connection(url, timeout=2.0)
+                print("[WebSocket] Connected (2s timeout)")
             except Exception as e:
                 print(f"[WebSocket] Connection error: {e}")
                 self.ws = None
