@@ -66,11 +66,8 @@ class WebSocketManager:
                         if topics and types and len(topics) == len(types):
                             return list(zip(topics, types))
                         else:
-                            print(f"[WebSocket] Mismatch in topics and types length: {len(topics)} vs {len(types)}")
-                            print(f"[WebSocket] Topics: {topics}")
-                            print(f"[WebSocket] Types: {types}")
-                    else:
-                        print(f"[WebSocket] No 'values' key in response: {data}")
+                            print("[WebSocket] Mismatch in topics and types length")
+
             except json.JSONDecodeError as e:
                 print(f"[WebSocket] JSON decode error: {e}")
             except Exception as e:
@@ -78,7 +75,7 @@ class WebSocketManager:
         return []
 
     def close(self):
-        if self.ws and hasattr(self.ws, 'close'):
+        if self.ws and self.ws.connected:
             try:
                 self.ws.close()
                 print("[WebSocket] Closed")
