@@ -1,6 +1,6 @@
 import socket
 import json
-import websocket
+import websocket._core as websocket
 import base64
 
 class WebSocketManager:
@@ -12,12 +12,14 @@ class WebSocketManager:
 
     def connect(self):
         if self.ws is None or not self.ws.connected:
-            sock = socket.create_connection((self.ip, self.port), source_address=(self.local_ip, 0))
-            ws = websocket.WebSocket()
-            ws.sock = sock
-            ws.connect(f"ws://{self.ip}:{self.port}")
-            self.ws = ws
-            print("[WebSocket] Connected")
+            try:
+                # Use websocket.create_connection instead of manual socket management
+                url = f"ws://{self.ip}:{self.port}"
+                self.ws = websocket.create_connection(url)
+                print("[WebSocket] Connected")
+            except Exception as e:
+                print(f"[WebSocket] Connection error: {e}")
+                self.ws = None
 
     def send(self, message: dict):
         self.connect()
