@@ -14,7 +14,13 @@ mcp = FastMCP("ros-mcp-server")
 ws_manager = WebSocketManager(ROSBRIDGE_IP, ROSBRIDGE_PORT, LOCAL_IP)
 
 
-@mcp.tool()
+@mcp.tool(
+    description=(
+        "Fetch available topics from the ROS bridge.\n"
+        "Example:\n"
+        "{ \"method\": \"tools/call\", \"params\": { \"name\": \"get_topics\", \"arguments\": {} }, \"jsonrpc\": \"2.0\", \"id\": 1 }"
+    )
+)
 def get_topics() -> dict:
     """
     Fetch available topics from the ROS bridge.
@@ -37,15 +43,20 @@ def get_topics() -> dict:
         return {"warning": "No topics found"}
 
 
-@mcp.tool()
-def subscribe_once(topic_name: str = "", topic_type: str = "", timeout: float = 2.0) -> dict:
+@mcp.tool(
+    description=(
+        "Subscribe to a ROS topic and return the first message received.\n"
+        "Example:\n"
+        "{ \"method\": \"tools/call\", \"params\": { \"name\": \"subscribe_once\", \"arguments\": { \"topic_name\": \"/cmd_vel\", \"topic_type\": \"geometry_msgs/msg/TwistStamped\", \"timeout\": 5 } }, \"jsonrpc\": \"2.0\", \"id\": 2 }"
+    )
+)
+def subscribe_once(topic: str = "", msg_type: str = "") -> dict:
     """
     Subscribe to a given ROS topic via rosbridge and return the first message received.
 
     Args:
-        topic_name (str): The ROS topic name (e.g., "/cmd_vel", "/joint_states").
-        topic_type (str): The ROS message type (e.g., "geometry_msgs/Twist").
-        timeout (float): How long (in seconds) to wait for a message before returning an error.
+        topic (str): The ROS topic name (e.g., "/cmd_vel", "/joint_states").
+        msg_type (str): The ROS message type (e.g., "geometry_msgs/Twist").
 
     Returns:
         dict:
@@ -53,19 +64,19 @@ def subscribe_once(topic_name: str = "", topic_type: str = "", timeout: float = 
             - {"error": "<error message>"} if subscription or timeout fails
     """
     # Validate critical args before attempting subscription
-    if not topic_name or not topic_type:
+    if not topic or not msg_type:
         return {"error": "Missing required arguments: topic_name and topic_type must be provided."}
 
     # Construct the rosbridge subscribe message
     subscribe_msg = {
         "op": "subscribe",
-        "topic": topic_name,
-        "type": topic_type,
+        "topic": topic,
+        "type": msg_type,
         "queue_length": 1,  # request just one message
     }
 
     # Send subscription request & wait for a single response
-    response = ws_manager.request(subscribe_msg, timeout=timeout)
+    response = ws_manager.request(subscribe_msg)
 
     # Always close the websocket after a single-shot subscription
     ws_manager.close()
@@ -82,8 +93,14 @@ def subscribe_once(topic_name: str = "", topic_type: str = "", timeout: float = 
     return {"error": "unexpected_response_format", "raw": response}
 
 
-@mcp.tool()
-def publish_once(topic: str = "", msg_type: str = "", msg: dict = None, timeout: float = 2.0) -> dict:
+@mcp.tool(
+    description=(
+        "Publish a single message to a ROS topic.\n"
+        "Example:\n"
+        "{ \"method\": \"tools/call\", \"params\": { \"name\": \"publish_once\", \"arguments\": { \"topic\": \"/cmd_vel\", \"msg_type\": \"geometry_msgs/msg/TwistStamped\", \"msg\": {\"linear\": {\"x\":1.0}}, \"timeout\": 2 } }, \"jsonrpc\": \"2.0\", \"id\": 3 }"
+    )
+)
+def publish_once(topic: str = "", msg_type: str = "", msg: dict = {}) -> dict:
     """
     Publish a single message to a ROS topic via rosbridge.
 
@@ -91,7 +108,6 @@ def publish_once(topic: str = "", msg_type: str = "", msg: dict = None, timeout:
         topic (str): ROS topic name (e.g., "/cmd_vel")
         msg_type (str): ROS message type (e.g., "geometry_msgs/Twist")
         msg (dict): Message payload as a dictionary
-        timeout (float): Seconds to wait for an optional response. Default = 2.0
 
     Returns:
         dict:
@@ -100,7 +116,7 @@ def publish_once(topic: str = "", msg_type: str = "", msg: dict = None, timeout:
             - If rosbridge responds (usually it doesn’t for publish), parsed JSON or error info
     """
     # Validate critical args before attempting publish
-    if not topic or not msg_type or msg is None:
+    if not topic or not msg_type or msg is {}:
         return {"error": "Missing required arguments: topic, msg_type, and msg must all be provided."}
 
     # Construct rosbridge publish message
@@ -114,7 +130,7 @@ def publish_once(topic: str = "", msg_type: str = "", msg: dict = None, timeout:
 
     # rosbridge typically does NOT respond to publish requests
     # But we can still attempt to receive in case of errors
-    response = ws_manager.receive(timeout=timeout)
+    response = ws_manager.receive()
 
     # Always close after sending
     ws_manager.close()
@@ -133,10 +149,16 @@ def publish_once(topic: str = "", msg_type: str = "", msg: dict = None, timeout:
         return {"error": "invalid_json", "raw": response}
 
 
-@mcp.tool()
+@mcp.tool(
+    description=(
+        "Subscribe to a topic for a duration and collect messages.\n"
+        "Example:\n"
+        "{ \"method\": \"tools/call\", \"params\": { \"name\": \"subscribe_for_duration\", \"arguments\": { \"topic_name\": \"/cmd_vel\", \"topic_type\": \"geometry_msgs/msg/TwistStamped\", \"duration\": 5, \"max_messages\": 10 } }, \"jsonrpc\": \"2.0\", \"id\": 4 }"
+    )
+)
 def subscribe_for_duration(
-    topic_name: str = "",
-    topic_type: str = "",
+    topic: str = "",
+    msg_type: str = "",
     duration: float = 5.0,
     max_messages: int = 100
 ) -> dict:
@@ -144,8 +166,8 @@ def subscribe_for_duration(
     Subscribe to a ROS topic via rosbridge for a fixed duration and collect messages.
 
     Args:
-        topic_name (str): ROS topic name (e.g. "/cmd_vel", "/joint_states")
-        topic_type (str): ROS message type (e.g. "geometry_msgs/Twist")
+        topic (str): ROS topic name (e.g. "/cmd_vel", "/joint_states")
+        msg_type (str): ROS message type (e.g. "geometry_msgs/Twist")
         duration (float): How long (seconds) to listen for messages
         max_messages (int): Maximum number of messages to collect before stopping
 
@@ -158,14 +180,14 @@ def subscribe_for_duration(
             }
     """
     # Validate critical args before subscribing
-    if not topic_name or not topic_type:
+    if not topic or not msg_type:
         return {"error": "Missing required arguments: topic_name and topic_type must be provided."}
 
     # Send subscription request
     subscribe_msg = {
         "op": "subscribe",
-        "topic": topic_name,
-        "type": topic_type,
+        "topic": topic,
+        "type": msg_type,
         "queue_length": 10  # allow some buffering
     }
 
@@ -193,20 +215,26 @@ def subscribe_for_duration(
     # Unsubscribe when done
     unsubscribe_msg = {
         "op": "unsubscribe",
-        "topic": topic_name
+        "topic": topic
     }
     ws_manager.send(unsubscribe_msg)
     ws_manager.close()
 
     return {
-        "topic": topic_name,
+        "topic": topic,
         "collected_count": len(collected_messages),
         "messages": collected_messages
     }
 
 
-@mcp.tool()
-def publish_for_durations(topic: str = "", msg_type: str = "", messages: list = None, durations: list = None) -> dict:
+@mcp.tool(
+    description=(
+        "Publish a sequence of messages with delays.\n"
+        "Example:\n"
+        "{ \"method\": \"tools/call\", \"params\": { \"name\": \"publish_for_durations\", \"arguments\": { \"topic\": \"/cmd_vel\", \"msg_type\": \"geometry_msgs/msg/TwistStamped\", \"messages\": [{\"linear\": {\"x\":1.0}}, {\"linear\": {\"x\":0.0}}], \"durations\": [1, 2] } }, \"jsonrpc\": \"2.0\", \"id\": 5 }"
+    )
+)
+def publish_for_durations(topic: str = "", msg_type: str = "", messages: list = [], durations: list = []) -> dict:
     """
     Publish a sequence of messages to a given ROS topic with delays in between.
 
@@ -227,7 +255,7 @@ def publish_for_durations(topic: str = "", msg_type: str = "", messages: list = 
             OR {"error": "<error message>"} if something failed
     """
     # Validate critical args before publishing
-    if not topic or not msg_type or messages is None or durations is None:
+    if not topic or not msg_type or messages is [] or durations is []:
         return {"error": "Missing required arguments: topic, msg_type, messages, and durations must all be provided."}
 
     # Ensure same length for messages & durations
