@@ -121,9 +121,72 @@ def publish_once(topic: str, msg_type: str, msg: dict, timeout: float = 2.0) -> 
     except json.JSONDecodeError:
         return {"error": "invalid_json", "raw": response}
 
+@mcp.tool()
+def subscribe_for_duration(
+    topic_name: str,
+    topic_type: str,
+    duration: float = 5.0,
+    max_messages: int = 100
+) -> dict:
+    """
+    Subscribe to a ROS topic via rosbridge for a fixed duration and collect messages.
+
+    Args:
+        topic_name (str): ROS topic name (e.g. "/cmd_vel", "/joint_states")
+        topic_type (str): ROS message type (e.g. "geometry_msgs/Twist")
+        duration (float): How long (seconds) to listen for messages
+        max_messages (int): Maximum number of messages to collect before stopping
+
+    Returns:
+        dict:
+            {
+                "topic": topic_name,
+                "collected_count": N,
+                "messages": [msg1, msg2, ...]
+            }
+    """
+    # Send subscription request
+    subscribe_msg = {
+        "op": "subscribe",
+        "topic": topic_name,
+        "type": topic_type,
+        "queue_length": 10
+    }
+
+    send_error = ws_manager.send(subscribe_msg)
+    if send_error:
+        ws_manager.close()
+        return {"error": f"Failed to subscribe: {send_error}"}
+
+    collected_messages = []
+    end_time = time.time() + duration
+
+    while time.time() < end_time and len(collected_messages) < max_messages:
+        response = ws_manager.receive(timeout=0.5)
+        if response:
+            try:
+                msg_data = json.loads(response)
+                if "msg" in msg_data:
+                    collected_messages.append(msg_data["msg"])
+            except json.JSONDecodeError:
+                continue
+
+    # Unsubscribe when done
+    unsubscribe_msg = {
+        "op": "unsubscribe",
+        "topic": topic_name
+    }
+    ws_manager.send(unsubscribe_msg)
+    ws_manager.close()
+
+    return {
+        "topic": topic_name,
+        "collected_count": len(collected_messages),
+        "messages": collected_messages
+    }
 
 @mcp.tool()
-def publish_sequence(topic: str, msg_type: str, messages: list, durations: list) -> dict:
+def publish_for_durations(topic: str, msg_type: str, messages: list, durations: list) -> dict:
     """
     Publish a sequence of messages to a given ROS topic with delays in between.
 
