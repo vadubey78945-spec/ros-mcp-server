@@ -25,7 +25,7 @@ MESSAGE_TYPE_MAP = {
 }
 
 @mcp.tool()
-def get_topics():
+def get_topics() -> dict:
     """
     Fetch available topics from the ROS bridge.
 
@@ -33,20 +33,22 @@ def get_topics():
         dict: Contains two lists - 'topics' and 'types',
             or a message string if no topics are found.
     """
-    topic_info = ws_manager.get_topics()
+    message = {
+        "op": "call_service",
+        "service": "/rosapi/topics",
+        "id": "get_topics_request_1"
+    }
+    
+    response = ws_manager.request(message)
     ws_manager.close()
 
-    if topic_info:
-        topics, types = zip(*topic_info)
-        return {
-            "topics": list(topics),
-            "types": list(types)
-        }
+    if response and "values" in response:
+        return response["values"]
     else:
-        return "No topics found"
+        return {"warning": "No topics found"}
 
 @mcp.tool()
-def get_supported_message_types():
+def get_supported_message_types()-> List[str]:
     """
     List all message types supported by this MCP server.
 
@@ -56,7 +58,7 @@ def get_supported_message_types():
     return list(MESSAGE_TYPE_MAP.keys())
 
 @mcp.tool()
-def publish_message(msg_type: str, topic: str, data: dict):
+def publish_message(msg_type: str, topic: str, data: dict)-> str:
     """
     Dynamically publish a ROS message.
 
@@ -95,7 +97,7 @@ def publish_message(msg_type: str, topic: str, data: dict):
     return f"{msg_type} message published to {topic}" if msg else f"Failed to publish {msg_type}"
 
 @mcp.tool()
-def pub_twist_seq(topic: str, data: dict):
+def pub_twist_seq(topic: str, data: dict)-> str:
     """
     Publish a sequence of Twist messages to a specified topic.
 
@@ -134,26 +136,45 @@ def pub_twist_seq(topic: str, data: dict):
 
 
 @mcp.tool()
-def subscribe_message(msg_type: str, topic: str):
+def subscribe_once(topic_name: str, topic_type: str, timeout: float = 2.0) -> dict:
     """
-    Dynamically subscribe to a ROS message.
+    Subscribe to a given ROS topic via rosbridge and return the first message received.
 
-    msg_type: one of types returned by 'get_supported_message_types()'
-    topic: ROS topic name, e.g. '/camera/image_raw' or '/cmd_vel'
+    Args:
+        topic_name (str): The ROS topic name (e.g., "/cmd_vel", "/joint_states").
+        topic_type (str): The ROS message type (e.g., "geometry_msgs/Twist").
+        timeout (float): How long (in seconds) to wait for a message before returning an error.
+
+    Returns:
+        dict:
+            - {"msg": <parsed ROS message>} if successful
+            - {"error": "<error message>"} if subscription or timeout fails
     """
-    if msg_type not in MESSAGE_TYPE_MAP:
-        return f"Unsupported message type: {msg_type}"
+    # Construct the rosbridge subscribe message
+    subscribe_msg = {
+        "op": "subscribe",
+        "topic": topic_name,
+        "type": topic_type,
+        "queue_length": 1  # request just one message
+    }
 
-    msg_class = MESSAGE_TYPE_MAP[msg_type]
-    msg_instance = msg_class(ws_manager, topic=topic)
+    # Send subscription request & wait for a response
+    response = ws_manager.request(subscribe_msg, timeout=timeout)
 
-    msg = msg_instance.subscribe()
+    # Always close the websocket after a single-shot subscription
     ws_manager.close()
 
-    if msg is not None:
-        return f"Received data from {topic}: {msg}"
-    else:
-        return f"No data received from {topic}"
+    # Handle rosbridge response
+    if "error" in response:
+        return response  # structured error from request()
+    
+    # If we got a valid ROS message
+    if "msg" in response:
+        return {"msg": response["msg"]}
+
+    # If the response is something unexpected, return raw
+    return {"error": "unexpected_response_format", "raw": response}
+
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
