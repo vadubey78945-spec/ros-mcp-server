@@ -1,5 +1,5 @@
 import json
-from typing import Optional
+from typing import Optional, Union
 
 import websocket._core as websocket
 
@@ -62,7 +62,7 @@ class WebSocketManager:
 
         return "[WebSocket] Not connected, send aborted."
 
-    def receive(self, timeout: float = 2.0) -> Optional[str]:
+    def receive(self, timeout: float = 2.0) -> Optional[Union[str, bytes]]:
         """
         Receive a single message from rosbridge within the given timeout.
 

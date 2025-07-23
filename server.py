@@ -2,6 +2,7 @@ import json
 import time
 
 from mcp.server.fastmcp import FastMCP
+
 from utils.websocket_manager import WebSocketManager
 
 # ROS bridge connection settings
@@ -14,13 +15,7 @@ mcp = FastMCP("ros-mcp-server")
 ws_manager = WebSocketManager(ROSBRIDGE_IP, ROSBRIDGE_PORT, LOCAL_IP)
 
 
-@mcp.tool(
-    description=(
-        "Fetch available topics from the ROS bridge.\n"
-        "Example:\n"
-        "get_topics()"
-    )
-)
+@mcp.tool(description=("Fetch available topics from the ROS bridge.\nExample:\nget_topics()"))
 def get_topics() -> dict:
     """
     Fetch available topics from the ROS bridge.
@@ -44,11 +39,7 @@ def get_topics() -> dict:
 
 
 @mcp.tool(
-    description=(
-        "Get the message type for a specific topic.\n"
-        "Example:\n"
-        "get_topic_type('/cmd_vel')"
-    )
+    description=("Get the message type for a specific topic.\nExample:\nget_topic_type('/cmd_vel')")
 )
 def get_topic_type(topic: str) -> dict:
     """
@@ -63,11 +54,11 @@ def get_topic_type(topic: str) -> dict:
     """
     # rosbridge service call to get topic type
     message = {
-        "op": "call_service", 
-        "service": "/rosapi/topic_type", 
+        "op": "call_service",
+        "service": "/rosapi/topic_type",
         "type": "rosapi/TopicType",
         "args": {"topic": topic},
-        "id": f"get_topic_type_request_{topic.replace('/', '_')}"
+        "id": f"get_topic_type_request_{topic.replace('/', '_')}",
     }
 
     # Request topic type from rosbridge
@@ -107,9 +98,9 @@ def get_message_details(message_type: str) -> dict:
     message = {
         "op": "call_service",
         "service": "/rosapi/message_details",
-        "type": "rosapi/MessageDetails", 
+        "type": "rosapi/MessageDetails",
         "args": {"type": message_type},
-        "id": f"get_message_details_request_{message_type.replace('/', '_')}"
+        "id": f"get_message_details_request_{message_type.replace('/', '_')}",
     }
 
     # Request message details from rosbridge
@@ -126,20 +117,14 @@ def get_message_details(message_type: str) -> dict:
                 type_name = typedef.get("type", message_type)
                 field_names = typedef.get("fieldnames", [])
                 field_types = typedef.get("fieldtypes", [])
-                
+
                 fields = {}
                 for name, ftype in zip(field_names, field_types):
                     fields[name] = ftype
-                
-                structure[type_name] = {
-                    "fields": fields,
-                    "field_count": len(fields)
-                }
-            
-            return {
-                "message_type": message_type,
-                "structure": structure
-            }
+
+                structure[type_name] = {"fields": fields, "field_count": len(fields)}
+
+            return {"message_type": message_type, "structure": structure}
         else:
             return {"error": f"Message type {message_type} not found or has no definition"}
     else:
@@ -170,7 +155,7 @@ def get_publishers_for_topic(topic: str) -> dict:
         "service": "/rosapi/publishers",
         "type": "rosapi/Publishers",
         "args": {"topic": topic},
-        "id": f"get_publishers_for_topic_request_{topic.replace('/', '_')}"
+        "id": f"get_publishers_for_topic_request_{topic.replace('/', '_')}",
     }
 
     # Request publishers from rosbridge
@@ -180,11 +165,7 @@ def get_publishers_for_topic(topic: str) -> dict:
     # Return publishers if present
     if response and "values" in response:
         publishers = response["values"].get("publishers", [])
-        return {
-            "topic": topic,
-            "publishers": publishers,
-            "publisher_count": len(publishers)
-        }
+        return {"topic": topic, "publishers": publishers, "publisher_count": len(publishers)}
     else:
         return {"error": f"Failed to get publishers for topic {topic}"}
 
@@ -210,10 +191,10 @@ def get_subscribers_for_topic(topic: str) -> dict:
     # rosbridge service call to get subscribers
     message = {
         "op": "call_service",
-        "service": "/rosapi/subscribers", 
+        "service": "/rosapi/subscribers",
         "type": "rosapi/Subscribers",
         "args": {"topic": topic},
-        "id": f"get_subscribers_for_topic_request_{topic.replace('/', '_')}"
+        "id": f"get_subscribers_for_topic_request_{topic.replace('/', '_')}",
     }
 
     # Request subscribers from rosbridge
@@ -223,11 +204,7 @@ def get_subscribers_for_topic(topic: str) -> dict:
     # Return subscribers if present
     if response and "values" in response:
         subscribers = response["values"].get("subscribers", [])
-        return {
-            "topic": topic,
-            "subscribers": subscribers,
-            "subscriber_count": len(subscribers)
-        }
+        return {"topic": topic, "subscribers": subscribers, "subscriber_count": len(subscribers)}
     else:
         return {"error": f"Failed to get subscribers for topic {topic}"}
 
@@ -305,8 +282,10 @@ def publish_once(topic: str = "", msg_type: str = "", msg: dict = {}) -> dict:
             - If rosbridge responds (usually it doesn’t for publish), parsed JSON or error info
     """
     # Validate critical args before attempting publish
-    if not topic or not msg_type or msg is {}:
-        return {"error": "Missing required arguments: topic, msg_type, and msg must all be provided."}
+    if not topic or not msg_type or msg == {}:
+        return {
+            "error": "Missing required arguments: topic, msg_type, and msg must all be provided."
+        }
 
     # Construct rosbridge publish message
     publish_msg = {"op": "publish", "topic": topic, "msg": msg}
@@ -346,10 +325,7 @@ def publish_once(topic: str = "", msg_type: str = "", msg: dict = {}) -> dict:
     )
 )
 def subscribe_for_duration(
-    topic: str = "",
-    msg_type: str = "",
-    duration: float = 5.0,
-    max_messages: int = 100
+    topic: str = "", msg_type: str = "", duration: float = 5.0, max_messages: int = 100
 ) -> dict:
     """
     Subscribe to a ROS topic via rosbridge for a fixed duration and collect messages.
@@ -377,7 +353,7 @@ def subscribe_for_duration(
         "op": "subscribe",
         "topic": topic,
         "type": msg_type,
-        "queue_length": 10  # allow some buffering
+        "queue_length": 10,  # allow some buffering
     }
 
     send_error = ws_manager.send(subscribe_msg)
@@ -402,17 +378,14 @@ def subscribe_for_duration(
                 continue
 
     # Unsubscribe when done
-    unsubscribe_msg = {
-        "op": "unsubscribe",
-        "topic": topic
-    }
+    unsubscribe_msg = {"op": "unsubscribe", "topic": topic}
     ws_manager.send(unsubscribe_msg)
     ws_manager.close()
 
     return {
         "topic": topic,
         "collected_count": len(collected_messages),
-        "messages": collected_messages
+        "messages": collected_messages,
     }
 
 
@@ -423,7 +396,9 @@ def subscribe_for_duration(
         "publish_for_durations(topic='/cmd_vel', msg_type='geometry_msgs/msg/TwistStamped', messages=[{'linear': {'x': 1.0}}, {'linear': {'x': 0.0}}], durations=[1, 2])"
     )
 )
-def publish_for_durations(topic: str = "", msg_type: str = "", messages: list = [], durations: list = []) -> dict:
+def publish_for_durations(
+    topic: str = "", msg_type: str = "", messages: list = [], durations: list = []
+) -> dict:
     """
     Publish a sequence of messages to a given ROS topic with delays in between.
 
@@ -444,8 +419,10 @@ def publish_for_durations(topic: str = "", msg_type: str = "", messages: list = 
             OR {"error": "<error message>"} if something failed
     """
     # Validate critical args before publishing
-    if not topic or not msg_type or messages is [] or durations is []:
-        return {"error": "Missing required arguments: topic, msg_type, messages, and durations must all be provided."}
+    if not topic or not msg_type or messages == [] or durations == []:
+        return {
+            "error": "Missing required arguments: topic, msg_type, messages, and durations must all be provided."
+        }
 
     # Ensure same length for messages & durations
     if len(messages) != len(durations):
