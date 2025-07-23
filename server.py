@@ -23,11 +23,14 @@ def get_topics() -> dict:
         dict: Contains two lists - 'topics' and 'types',
             or a message string if no topics are found.
     """
+    # rosbridge service call to get topic list
     message = {"op": "call_service", "service": "/rosapi/topics", "id": "get_topics_request_1"}
 
+    # Request topic list from rosbridge
     response = ws_manager.request(message)
     ws_manager.close()
 
+    # Return topic info if present
     if response and "values" in response:
         return response["values"]
     else:
@@ -35,7 +38,7 @@ def get_topics() -> dict:
 
 
 @mcp.tool()
-def subscribe_once(topic_name: str, topic_type: str, timeout: float = 2.0) -> dict:
+def subscribe_once(topic_name: str = "", topic_type: str = "", timeout: float = 2.0) -> dict:
     """
     Subscribe to a given ROS topic via rosbridge and return the first message received.
 
@@ -49,6 +52,10 @@ def subscribe_once(topic_name: str, topic_type: str, timeout: float = 2.0) -> di
             - {"msg": <parsed ROS message>} if successful
             - {"error": "<error message>"} if subscription or timeout fails
     """
+    # Validate critical args before attempting subscription
+    if not topic_name or not topic_type:
+        return {"error": "Missing required arguments: topic_name and topic_type must be provided."}
+
     # Construct the rosbridge subscribe message
     subscribe_msg = {
         "op": "subscribe",
@@ -57,7 +64,7 @@ def subscribe_once(topic_name: str, topic_type: str, timeout: float = 2.0) -> di
         "queue_length": 1,  # request just one message
     }
 
-    # Send subscription request & wait for a response
+    # Send subscription request & wait for a single response
     response = ws_manager.request(subscribe_msg, timeout=timeout)
 
     # Always close the websocket after a single-shot subscription
@@ -76,7 +83,7 @@ def subscribe_once(topic_name: str, topic_type: str, timeout: float = 2.0) -> di
 
 
 @mcp.tool()
-def publish_once(topic: str, msg_type: str, msg: dict, timeout: float = 2.0) -> dict:
+def publish_once(topic: str = "", msg_type: str = "", msg: dict = None, timeout: float = 2.0) -> dict:
     """
     Publish a single message to a ROS topic via rosbridge.
 
@@ -92,6 +99,10 @@ def publish_once(topic: str, msg_type: str, msg: dict, timeout: float = 2.0) -> 
             - {"error": "<error message>"} if connection/send failed
             - If rosbridge responds (usually it doesn’t for publish), parsed JSON or error info
     """
+    # Validate critical args before attempting publish
+    if not topic or not msg_type or msg is None:
+        return {"error": "Missing required arguments: topic, msg_type, and msg must all be provided."}
+
     # Construct rosbridge publish message
     publish_msg = {"op": "publish", "topic": topic, "msg": msg}
 
@@ -121,10 +132,11 @@ def publish_once(topic: str, msg_type: str, msg: dict, timeout: float = 2.0) -> 
     except json.JSONDecodeError:
         return {"error": "invalid_json", "raw": response}
 
+
 @mcp.tool()
 def subscribe_for_duration(
-    topic_name: str,
-    topic_type: str,
+    topic_name: str = "",
+    topic_type: str = "",
     duration: float = 5.0,
     max_messages: int = 100
 ) -> dict:
@@ -145,12 +157,16 @@ def subscribe_for_duration(
                 "messages": [msg1, msg2, ...]
             }
     """
+    # Validate critical args before subscribing
+    if not topic_name or not topic_type:
+        return {"error": "Missing required arguments: topic_name and topic_type must be provided."}
+
     # Send subscription request
     subscribe_msg = {
         "op": "subscribe",
         "topic": topic_name,
         "type": topic_type,
-        "queue_length": 10
+        "queue_length": 10  # allow some buffering
     }
 
     send_error = ws_manager.send(subscribe_msg)
@@ -161,14 +177,17 @@ def subscribe_for_duration(
     collected_messages = []
     end_time = time.time() + duration
 
+    # Loop until duration expires or we hit max_messages
     while time.time() < end_time and len(collected_messages) < max_messages:
-        response = ws_manager.receive(timeout=0.5)
+        response = ws_manager.receive(timeout=0.5)  # non-blocking small timeout
         if response:
             try:
                 msg_data = json.loads(response)
+                # rosbridge subscription responses include "msg" field
                 if "msg" in msg_data:
                     collected_messages.append(msg_data["msg"])
             except json.JSONDecodeError:
+                # skip malformed data
                 continue
 
     # Unsubscribe when done
@@ -185,8 +204,9 @@ def subscribe_for_duration(
         "messages": collected_messages
     }
 
+
 @mcp.tool()
-def publish_for_durations(topic: str, msg_type: str, messages: list, durations: list) -> dict:
+def publish_for_durations(topic: str = "", msg_type: str = "", messages: list = None, durations: list = None) -> dict:
     """
     Publish a sequence of messages to a given ROS topic with delays in between.
 
@@ -206,10 +226,15 @@ def publish_for_durations(topic: str, msg_type: str, messages: list, durations: 
             }
             OR {"error": "<error message>"} if something failed
     """
+    # Validate critical args before publishing
+    if not topic or not msg_type or messages is None or durations is None:
+        return {"error": "Missing required arguments: topic, msg_type, messages, and durations must all be provided."}
+
     # Ensure same length for messages & durations
     if len(messages) != len(durations):
         return {"error": "messages and durations must have the same length"}
 
+    # Iterate and publish each message with a delay
     for i, (msg, delay) in enumerate(zip(messages, durations)):
         # Build the rosbridge publish message
         publish_msg = {"op": "publish", "topic": topic, "msg": msg}
@@ -220,7 +245,7 @@ def publish_for_durations(topic: str, msg_type: str, messages: list, durations: 
             ws_manager.close()
             return {"error": f"Failed at message {i + 1}: {send_error}", "published_count": i}
 
-        # Wait before the next message
+        # Wait before sending the next message
         time.sleep(delay)
 
     # Close after the full sequence
