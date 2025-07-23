@@ -1,8 +1,8 @@
-import socket
 import json
-import websocket._core as websocket
-import base64
 from typing import Optional
+
+import websocket._core as websocket
+
 
 class WebSocketManager:
     def __init__(self, ip: str, port: int, local_ip: str):
@@ -14,7 +14,7 @@ class WebSocketManager:
     def connect(self) -> Optional[str]:
         """
         Attempt to establish a WebSocket connection.
-        
+
         Returns:
             None if successful,
             or an error message string if connection failed.
@@ -32,11 +32,10 @@ class WebSocketManager:
                 return error_msg
         return None  # already connected, no error
 
-
     def send(self, message: dict) -> Optional[str]:
         """
         Send a JSON-serializable message over WebSocket.
-        
+
         Returns:
             None if successful,
             or an error message string if send failed.
@@ -60,9 +59,8 @@ class WebSocketManager:
                 print(error_msg)
                 self.close()
                 return error_msg
-        
-        return "[WebSocket] Not connected, send aborted."
 
+        return "[WebSocket] Not connected, send aborted."
 
     def receive(self, timeout: float = 2.0) -> Optional[str]:
         """

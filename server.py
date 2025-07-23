@@ -1,18 +1,18 @@
-from mcp.server.fastmcp import FastMCP
-from typing import List, Any, Optional
-from pathlib import Path
 import json
 import time
+
+from mcp.server.fastmcp import FastMCP
 from utils.websocket_manager import WebSocketManager
 
 # ROS bridge connection settings
-LOCAL_IP = "127.0.0.1"      # Replace with your local IP address. Default is localhost.
+LOCAL_IP = "127.0.0.1"  # Replace with your local IP address. Default is localhost.
 ROSBRIDGE_IP = "127.0.0.1"  # Replace with your rosbridge server IP address. Default is localhost.
 ROSBRIDGE_PORT = 9090
 
 # Initialize MCP server and WebSocket manager
 mcp = FastMCP("ros-mcp-server")
 ws_manager = WebSocketManager(ROSBRIDGE_IP, ROSBRIDGE_PORT, LOCAL_IP)
+
 
 @mcp.tool()
 def get_topics() -> dict:
@@ -23,12 +23,8 @@ def get_topics() -> dict:
         dict: Contains two lists - 'topics' and 'types',
             or a message string if no topics are found.
     """
-    message = {
-        "op": "call_service",
-        "service": "/rosapi/topics",
-        "id": "get_topics_request_1"
-    }
-    
+    message = {"op": "call_service", "service": "/rosapi/topics", "id": "get_topics_request_1"}
+
     response = ws_manager.request(message)
     ws_manager.close()
 
@@ -36,6 +32,7 @@ def get_topics() -> dict:
         return response["values"]
     else:
         return {"warning": "No topics found"}
+
 
 @mcp.tool()
 def subscribe_once(topic_name: str, topic_type: str, timeout: float = 2.0) -> dict:
@@ -57,7 +54,7 @@ def subscribe_once(topic_name: str, topic_type: str, timeout: float = 2.0) -> di
         "op": "subscribe",
         "topic": topic_name,
         "type": topic_type,
-        "queue_length": 1  # request just one message
+        "queue_length": 1,  # request just one message
     }
 
     # Send subscription request & wait for a response
@@ -69,7 +66,7 @@ def subscribe_once(topic_name: str, topic_type: str, timeout: float = 2.0) -> di
     # Handle rosbridge response
     if "error" in response:
         return response  # structured error from request()
-    
+
     # If we got a valid ROS message
     if "msg" in response:
         return {"msg": response["msg"]}
@@ -96,11 +93,7 @@ def publish_once(topic: str, msg_type: str, msg: dict, timeout: float = 2.0) -> 
             - If rosbridge responds (usually it doesn’t for publish), parsed JSON or error info
     """
     # Construct rosbridge publish message
-    publish_msg = {
-        "op": "publish",
-        "topic": topic,
-        "msg": msg
-    }
+    publish_msg = {"op": "publish", "topic": topic, "msg": msg}
 
     # Send the message via ws_manager
     send_error = ws_manager.send(publish_msg)
@@ -117,7 +110,10 @@ def publish_once(topic: str, msg_type: str, msg: dict, timeout: float = 2.0) -> 
 
     # No response is normal for publish
     if response is None or response.strip() == "":
-        return {"success": True, "note": "No response is expected for publish, so we have no confirmation that the message was published."}
+        return {
+            "success": True,
+            "note": "No response is expected for publish, so we have no confirmation that the message was published.",
+        }
 
     # If rosbridge *did* send something back, parse it
     try:
@@ -125,13 +121,9 @@ def publish_once(topic: str, msg_type: str, msg: dict, timeout: float = 2.0) -> 
     except json.JSONDecodeError:
         return {"error": "invalid_json", "raw": response}
 
+
 @mcp.tool()
-def publish_sequence(
-    topic: str,
-    msg_type: str,
-    messages: list,
-    durations: list
-) -> dict:
+def publish_sequence(topic: str, msg_type: str, messages: list, durations: list) -> dict:
     """
     Publish a sequence of messages to a given ROS topic with delays in between.
 
@@ -157,20 +149,13 @@ def publish_sequence(
 
     for i, (msg, delay) in enumerate(zip(messages, durations)):
         # Build the rosbridge publish message
-        publish_msg = {
-            "op": "publish",
-            "topic": topic,
-            "msg": msg
-        }
+        publish_msg = {"op": "publish", "topic": topic, "msg": msg}
 
         # Send it
         send_error = ws_manager.send(publish_msg)
         if send_error:
             ws_manager.close()
-            return {
-                "error": f"Failed at message {i+1}: {send_error}",
-                "published_count": i
-            }
+            return {"error": f"Failed at message {i + 1}: {send_error}", "published_count": i}
 
         # Wait before the next message
         time.sleep(delay)
@@ -178,13 +163,7 @@ def publish_sequence(
     # Close after the full sequence
     ws_manager.close()
 
-    return {
-        "success": True,
-        "published_count": len(messages),
-        "topic": topic,
-        "msg_type": msg_type
-    }
-
+    return {"success": True, "published_count": len(messages), "topic": topic, "msg_type": msg_type}
 
 
 if __name__ == "__main__":
