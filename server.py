@@ -18,7 +18,7 @@ ws_manager = WebSocketManager(ROSBRIDGE_IP, ROSBRIDGE_PORT, LOCAL_IP)
     description=(
         "Fetch available topics from the ROS bridge.\n"
         "Example:\n"
-        "{ \"method\": \"tools/call\", \"params\": { \"name\": \"get_topics\", \"arguments\": {} }, \"jsonrpc\": \"2.0\", \"id\": 1 }"
+        "get_topics()"
     )
 )
 def get_topics() -> dict:
@@ -45,9 +45,198 @@ def get_topics() -> dict:
 
 @mcp.tool(
     description=(
+        "Get the message type for a specific topic.\n"
+        "Example:\n"
+        "get_topic_type('/cmd_vel')"
+    )
+)
+def get_topic_type(topic: str) -> dict:
+    """
+    Get the message type for a specific topic.
+
+    Args:
+        topic (str): The topic name (e.g., '/cmd_vel')
+
+    Returns:
+        dict: Contains the 'type' field with the message type,
+            or an error message if topic doesn't exist.
+    """
+    # rosbridge service call to get topic type
+    message = {
+        "op": "call_service", 
+        "service": "/rosapi/topic_type", 
+        "type": "rosapi/TopicType",
+        "args": {"topic": topic},
+        "id": f"get_topic_type_request_{topic.replace('/', '_')}"
+    }
+
+    # Request topic type from rosbridge
+    response = ws_manager.request(message)
+    ws_manager.close()
+
+    # Return topic type if present
+    if response and "values" in response:
+        topic_type = response["values"].get("type", "")
+        if topic_type:
+            return {"topic": topic, "type": topic_type}
+        else:
+            return {"error": f"Topic {topic} does not exist or has no type"}
+    else:
+        return {"error": f"Failed to get type for topic {topic}"}
+
+
+@mcp.tool(
+    description=(
+        "Get the complete structure/definition of a message type.\n"
+        "Example:\n"
+        "get_message_details('geometry_msgs/Twist')"
+    )
+)
+def get_message_details(message_type: str) -> dict:
+    """
+    Get the complete structure/definition of a message type.
+
+    Args:
+        message_type (str): The message type (e.g., 'geometry_msgs/Twist')
+
+    Returns:
+        dict: Contains the message structure with field names and types,
+            or an error message if the message type doesn't exist.
+    """
+    # rosbridge service call to get message details
+    message = {
+        "op": "call_service",
+        "service": "/rosapi/message_details",
+        "type": "rosapi/MessageDetails", 
+        "args": {"type": message_type},
+        "id": f"get_message_details_request_{message_type.replace('/', '_')}"
+    }
+
+    # Request message details from rosbridge
+    response = ws_manager.request(message)
+    ws_manager.close()
+
+    # Return message structure if present
+    if response and "values" in response:
+        typedefs = response["values"].get("typedefs", [])
+        if typedefs:
+            # Parse the structure into a more readable format
+            structure = {}
+            for typedef in typedefs:
+                type_name = typedef.get("type", message_type)
+                field_names = typedef.get("fieldnames", [])
+                field_types = typedef.get("fieldtypes", [])
+                
+                fields = {}
+                for name, ftype in zip(field_names, field_types):
+                    fields[name] = ftype
+                
+                structure[type_name] = {
+                    "fields": fields,
+                    "field_count": len(fields)
+                }
+            
+            return {
+                "message_type": message_type,
+                "structure": structure
+            }
+        else:
+            return {"error": f"Message type {message_type} not found or has no definition"}
+    else:
+        return {"error": f"Failed to get details for message type {message_type}"}
+
+
+@mcp.tool(
+    description=(
+        "Get list of nodes that are publishing to a specific topic.\n"
+        "Example:\n"
+        "get_publishers_for_topic('/cmd_vel')"
+    )
+)
+def get_publishers_for_topic(topic: str) -> dict:
+    """
+    Get list of nodes that are publishing to a specific topic.
+
+    Args:
+        topic (str): The topic name (e.g., '/cmd_vel')
+
+    Returns:
+        dict: Contains list of publisher node names,
+            or a message if no publishers found.
+    """
+    # rosbridge service call to get publishers
+    message = {
+        "op": "call_service",
+        "service": "/rosapi/publishers",
+        "type": "rosapi/Publishers",
+        "args": {"topic": topic},
+        "id": f"get_publishers_for_topic_request_{topic.replace('/', '_')}"
+    }
+
+    # Request publishers from rosbridge
+    response = ws_manager.request(message)
+    ws_manager.close()
+
+    # Return publishers if present
+    if response and "values" in response:
+        publishers = response["values"].get("publishers", [])
+        return {
+            "topic": topic,
+            "publishers": publishers,
+            "publisher_count": len(publishers)
+        }
+    else:
+        return {"error": f"Failed to get publishers for topic {topic}"}
+
+
+@mcp.tool(
+    description=(
+        "Get list of nodes that are subscribed to a specific topic.\n"
+        "Example:\n"
+        "get_subscribers_for_topic('/cmd_vel')"
+    )
+)
+def get_subscribers_for_topic(topic: str) -> dict:
+    """
+    Get list of nodes that are subscribed to a specific topic.
+
+    Args:
+        topic (str): The topic name (e.g., '/cmd_vel')
+
+    Returns:
+        dict: Contains list of subscriber node names,
+            or a message if no subscribers found.
+    """
+    # rosbridge service call to get subscribers
+    message = {
+        "op": "call_service",
+        "service": "/rosapi/subscribers", 
+        "type": "rosapi/Subscribers",
+        "args": {"topic": topic},
+        "id": f"get_subscribers_for_topic_request_{topic.replace('/', '_')}"
+    }
+
+    # Request subscribers from rosbridge
+    response = ws_manager.request(message)
+    ws_manager.close()
+
+    # Return subscribers if present
+    if response and "values" in response:
+        subscribers = response["values"].get("subscribers", [])
+        return {
+            "topic": topic,
+            "subscribers": subscribers,
+            "subscriber_count": len(subscribers)
+        }
+    else:
+        return {"error": f"Failed to get subscribers for topic {topic}"}
+
+
+@mcp.tool(
+    description=(
         "Subscribe to a ROS topic and return the first message received.\n"
         "Example:\n"
-        "{ \"method\": \"tools/call\", \"params\": { \"name\": \"subscribe_once\", \"arguments\": { \"topic_name\": \"/cmd_vel\", \"topic_type\": \"geometry_msgs/msg/TwistStamped\", \"timeout\": 5 } }, \"jsonrpc\": \"2.0\", \"id\": 2 }"
+        "subscribe_once(topic='/cmd_vel', msg_type='geometry_msgs/msg/TwistStamped')"
     )
 )
 def subscribe_once(topic: str = "", msg_type: str = "") -> dict:
@@ -65,7 +254,7 @@ def subscribe_once(topic: str = "", msg_type: str = "") -> dict:
     """
     # Validate critical args before attempting subscription
     if not topic or not msg_type:
-        return {"error": "Missing required arguments: topic_name and topic_type must be provided."}
+        return {"error": "Missing required arguments: topic and msg_type must be provided."}
 
     # Construct the rosbridge subscribe message
     subscribe_msg = {
@@ -97,7 +286,7 @@ def subscribe_once(topic: str = "", msg_type: str = "") -> dict:
     description=(
         "Publish a single message to a ROS topic.\n"
         "Example:\n"
-        "{ \"method\": \"tools/call\", \"params\": { \"name\": \"publish_once\", \"arguments\": { \"topic\": \"/cmd_vel\", \"msg_type\": \"geometry_msgs/msg/TwistStamped\", \"msg\": {\"linear\": {\"x\":1.0}}, \"timeout\": 2 } }, \"jsonrpc\": \"2.0\", \"id\": 3 }"
+        "publish_once(topic='/cmd_vel', msg_type='geometry_msgs/msg/TwistStamped', msg={'linear': {'x': 1.0}})"
     )
 )
 def publish_once(topic: str = "", msg_type: str = "", msg: dict = {}) -> dict:
@@ -153,7 +342,7 @@ def publish_once(topic: str = "", msg_type: str = "", msg: dict = {}) -> dict:
     description=(
         "Subscribe to a topic for a duration and collect messages.\n"
         "Example:\n"
-        "{ \"method\": \"tools/call\", \"params\": { \"name\": \"subscribe_for_duration\", \"arguments\": { \"topic_name\": \"/cmd_vel\", \"topic_type\": \"geometry_msgs/msg/TwistStamped\", \"duration\": 5, \"max_messages\": 10 } }, \"jsonrpc\": \"2.0\", \"id\": 4 }"
+        "subscribe_for_duration(topic='/cmd_vel', msg_type='geometry_msgs/msg/TwistStamped', duration=5, max_messages=10)"
     )
 )
 def subscribe_for_duration(
@@ -181,7 +370,7 @@ def subscribe_for_duration(
     """
     # Validate critical args before subscribing
     if not topic or not msg_type:
-        return {"error": "Missing required arguments: topic_name and topic_type must be provided."}
+        return {"error": "Missing required arguments: topic and msg_type must be provided."}
 
     # Send subscription request
     subscribe_msg = {
@@ -231,7 +420,7 @@ def subscribe_for_duration(
     description=(
         "Publish a sequence of messages with delays.\n"
         "Example:\n"
-        "{ \"method\": \"tools/call\", \"params\": { \"name\": \"publish_for_durations\", \"arguments\": { \"topic\": \"/cmd_vel\", \"msg_type\": \"geometry_msgs/msg/TwistStamped\", \"messages\": [{\"linear\": {\"x\":1.0}}, {\"linear\": {\"x\":0.0}}], \"durations\": [1, 2] } }, \"jsonrpc\": \"2.0\", \"id\": 5 }"
+        "publish_for_durations(topic='/cmd_vel', msg_type='geometry_msgs/msg/TwistStamped', messages=[{'linear': {'x': 1.0}}, {'linear': {'x': 0.0}}], durations=[1, 2])"
     )
 )
 def publish_for_durations(topic: str = "", msg_type: str = "", messages: list = [], durations: list = []) -> dict:
