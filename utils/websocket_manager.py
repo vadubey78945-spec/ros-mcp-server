@@ -92,35 +92,36 @@ class WebSocketManager:
         Send a request to Rosbridge and return the response.
 
         Args:
-            message (dict): The Rosbridge message dictionary to send
+            message (dict): The Rosbridge message dictionary to send.
             timeout (float): Seconds to wait for a response. Default = 2.0.
 
         Returns:
-            dict: The parsed JSON response,
-                  OR {"error": "<error message>"} if timeout/error occurred,
-                  OR {"error": "invalid_json", "raw": <response>} if decoding fails.
+            dict:
+                - Parsed JSON response if successful.
+                - {"error": "<error message>"} if connection/send/receive fails.
+                - {"error": "invalid_json", "raw": <response>} if decoding fails.
         """
-        self.connect()
-        if self.ws:
-            try:
-                self.send(message)
-                response = self.receive(timeout=timeout)
+        # Attempt connection
+        conn_error = self.connect()
+        if conn_error:
+            return {"error": conn_error}
 
-                if response is None or response.strip() == "":
-                    return {"error": "no response or timeout from rosbridge"}
+        # Attempt to send the message
+        send_error = self.send(message)
+        if send_error:
+            return {"error": send_error}
 
-                try:
-                    data = json.loads(response)
-                    return data
-                except json.JSONDecodeError as e:
-                    print(f"[WebSocket] JSON decode error: {e}")
-                    return {"error": "invalid_json", "raw": response}
+        # Attempt to receive a response
+        response = self.receive(timeout=timeout)
+        if response is None:
+            return {"error": "no response or timeout from rosbridge"}
 
-            except Exception as e:
-                print(f"[WebSocket] Request error: {e}")
-                return {"error": str(e)}
-
-        return {"error": "not connected to rosbridge"}
+        # Attempt to parse JSON
+        try:
+            return json.loads(response)
+        except json.JSONDecodeError as e:
+            print(f"[WebSocket] JSON decode error: {e}")
+            return {"error": "invalid_json", "raw": response}
 
     def close(self):
         if self.ws and self.ws.connected:

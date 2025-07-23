@@ -2,11 +2,8 @@ from mcp.server.fastmcp import FastMCP
 from typing import List, Any, Optional
 from pathlib import Path
 import json
+import time
 from utils.websocket_manager import WebSocketManager
-
-# ROS message wrapper imports
-from msgs.geometry_msgs import Twist
-from msgs.sensor_msgs import Image, JointState
 
 # ROS bridge connection settings
 LOCAL_IP = "127.0.0.1"      # Replace with your local IP address. Default is localhost.
@@ -16,13 +13,6 @@ ROSBRIDGE_PORT = 9090
 # Initialize MCP server and WebSocket manager
 mcp = FastMCP("ros-mcp-server")
 ws_manager = WebSocketManager(ROSBRIDGE_IP, ROSBRIDGE_PORT, LOCAL_IP)
-
-# Mapping of supported message types to their wrapper classes
-MESSAGE_TYPE_MAP = {
-    "Twist": Twist,
-    "Image": Image,
-    "JointState": JointState
-}
 
 @mcp.tool()
 def get_topics() -> dict:
@@ -46,94 +36,6 @@ def get_topics() -> dict:
         return response["values"]
     else:
         return {"warning": "No topics found"}
-
-@mcp.tool()
-def get_supported_message_types()-> List[str]:
-    """
-    List all message types supported by this MCP server.
-
-    Returns:
-        list: Names of supported message types, e.g. ['Twist', 'Image', 'JointState'].
-    """
-    return list(MESSAGE_TYPE_MAP.keys())
-
-@mcp.tool()
-def publish_message(msg_type: str, topic: str, data: dict)-> str:
-    """
-    Dynamically publish a ROS message.
-
-    msg_type: one of types returned by 'get_supported_message_types()'
-    topic: ROS topic name, e.g. '/cmd_vel' or '/robot_pose'
-    data: dictionary with message-specific fields
-          - Twist requires: { "linear": [x, y, z], "angular": [x, y, z] }
-          - JointState requires: { "name": [...], "position": [...], "velocity": [...], "effort": [...] }
-
-    """
-    if msg_type not in MESSAGE_TYPE_MAP:
-        return f"Unsupported message type: {msg_type}"
-
-    msg_class = MESSAGE_TYPE_MAP[msg_type]
-    msg_instance = msg_class(ws_manager, topic=topic)
-
-    # Twist message handling
-    if msg_type == "Twist":
-        linear = data.get("linear", [0.0, 0.0, 0.0])
-        angular = data.get("angular", [0.0, 0.0, 0.0])
-        msg = msg_instance.publish(linear, angular)
-
-    # JointState message handling
-    elif msg_type == "JointState":
-        name = data.get("name", [])
-        position = data.get("position", [])
-        velocity = data.get("velocity", [])
-        effort = data.get("effort", [])
-        msg = msg_instance.publish(name, position, velocity, effort)
-
-    else:
-        # Message types like Image are usually only subscribed
-        msg = None
-
-    ws_manager.close()
-    return f"{msg_type} message published to {topic}" if msg else f"Failed to publish {msg_type}"
-
-@mcp.tool()
-def pub_twist_seq(topic: str, data: dict)-> str:
-    """
-    Publish a sequence of Twist messages to a specified topic.
-
-    Args:
-        topic (str): The ROS topic name to publish to, e.g. '/cmd_vel'.
-        data (dict): A dictionary containing:
-            - "linear_seq": List of [x, y, z] linear velocity vectors.
-            - "angular_seq": List of [x, y, z] angular velocity vectors.
-            - "duration_seq": List of durations in seconds for each step.
-
-            Example:
-            {
-                "linear_seq": [[0.1, 0.0, 0.0], [0.2, 0.0, 0.0]],
-                "angular_seq": [[0.0, 0.0, 0.1], [0.0, 0.0, 0.2]],
-                "duration_seq": [2.0, 3.0]
-            }
-
-    Returns:
-        str: Confirmation message after publishing the sequence.
-    """
-    from msgs.geometry_msgs import Twist as TwistMsg
-
-    # Extract fields with defaults
-    linear_seq = data.get("linear_seq", [])
-    angular_seq = data.get("angular_seq", [])
-    duration_seq = data.get("duration_seq", [])
-
-    # Create a Twist instance for the given topic
-    twist_instance = TwistMsg(ws_manager, topic=topic)
-    twist_instance.publish_sequence(linear_seq, angular_seq, duration_seq)
-
-    # Close WebSocket after publishing
-    ws_manager.close()
-
-    return f"Published Twist sequence to topic {topic}"
-
 
 @mcp.tool()
 def subscribe_once(topic_name: str, topic_type: str, timeout: float = 2.0) -> dict:
@@ -174,6 +76,115 @@ def subscribe_once(topic_name: str, topic_type: str, timeout: float = 2.0) -> di
 
     # If the response is something unexpected, return raw
     return {"error": "unexpected_response_format", "raw": response}
+
+
+@mcp.tool()
+def publish_once(topic: str, msg_type: str, msg: dict, timeout: float = 2.0) -> dict:
+    """
+    Publish a single message to a ROS topic via rosbridge.
+
+    Args:
+        topic (str): ROS topic name (e.g., "/cmd_vel")
+        msg_type (str): ROS message type (e.g., "geometry_msgs/Twist")
+        msg (dict): Message payload as a dictionary
+        timeout (float): Seconds to wait for an optional response. Default = 2.0
+
+    Returns:
+        dict:
+            - {"success": True} if sent without errors
+            - {"error": "<error message>"} if connection/send failed
+            - If rosbridge responds (usually it doesn’t for publish), parsed JSON or error info
+    """
+    # Construct rosbridge publish message
+    publish_msg = {
+        "op": "publish",
+        "topic": topic,
+        "msg": msg
+    }
+
+    # Send the message via ws_manager
+    send_error = ws_manager.send(publish_msg)
+    if send_error:
+        ws_manager.close()
+        return {"error": send_error}
+
+    # rosbridge typically does NOT respond to publish requests
+    # But we can still attempt to receive in case of errors
+    response = ws_manager.receive(timeout=timeout)
+
+    # Always close after sending
+    ws_manager.close()
+
+    # No response is normal for publish
+    if response is None or response.strip() == "":
+        return {"success": True, "note": "No response is expected for publish, so we have no confirmation that the message was published."}
+
+    # If rosbridge *did* send something back, parse it
+    try:
+        return json.loads(response)
+    except json.JSONDecodeError:
+        return {"error": "invalid_json", "raw": response}
+
+@mcp.tool()
+def publish_sequence(
+    topic: str,
+    msg_type: str,
+    messages: list,
+    durations: list
+) -> dict:
+    """
+    Publish a sequence of messages to a given ROS topic with delays in between.
+
+    Args:
+        topic (str): ROS topic name (e.g., "/cmd_vel")
+        msg_type (str): ROS message type (e.g., "geometry_msgs/Twist")
+        messages (list): A list of message dictionaries (ROS-compatible payloads)
+        durations (list): A list of durations (seconds) to wait between messages
+
+    Returns:
+        dict:
+            {
+                "success": True,
+                "published_count": <number of messages>,
+                "topic": topic,
+                "msg_type": msg_type
+            }
+            OR {"error": "<error message>"} if something failed
+    """
+    # Ensure same length for messages & durations
+    if len(messages) != len(durations):
+        return {"error": "messages and durations must have the same length"}
+
+    for i, (msg, delay) in enumerate(zip(messages, durations)):
+        # Build the rosbridge publish message
+        publish_msg = {
+            "op": "publish",
+            "topic": topic,
+            "msg": msg
+        }
+
+        # Send it
+        send_error = ws_manager.send(publish_msg)
+        if send_error:
+            ws_manager.close()
+            return {
+                "error": f"Failed at message {i+1}: {send_error}",
+                "published_count": i
+            }
+
+        # Wait before the next message
+        time.sleep(delay)
+
+    # Close after the full sequence
+    ws_manager.close()
+
+    return {
+        "success": True,
+        "published_count": len(messages),
+        "topic": topic,
+        "msg_type": msg_type
+    }
+
 
 
 if __name__ == "__main__":
