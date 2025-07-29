@@ -11,6 +11,16 @@ class WebSocketManager:
         self.local_ip = local_ip
         self.ws = None
 
+    def set_ip(self, ip: str, port: int, local_ip: Optional[str] = None):
+        """
+        Set the IP and port for the WebSocket connection.
+        """
+        self.ip = ip
+        self.port = port
+        if local_ip is not None:
+            self.local_ip = local_ip
+        print(f"[WebSocket] IP set to {self.ip}:{self.port} (local IP: {self.local_ip})")
+
     def connect(self) -> Optional[str]:
         """
         Attempt to establish a WebSocket connection.
