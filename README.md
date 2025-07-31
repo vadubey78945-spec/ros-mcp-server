@@ -33,16 +33,6 @@ Please follow the [contributing guidelines](CONTRIBUTING.md) for more details on
 
 ## Installation
 
-### Installing via Smithery
-
-To install ``ros-mcp-server`` for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@lpigeon/ros-mcp-server):
-
-```bash
-npx -y @smithery/cli install @lpigeon/ros-mcp-server --client claude
-```
-
-### Installing Locally
-
 ### `uv` Installation
 - To install `uv`, you can use the following command:
 ```bash
@@ -51,12 +41,6 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 or
 ```bash
 pip install uv
-```
-
-- Create virtual environment and activate it (Optional)
-```bash
-uv venv
-source .venv/bin/activate
 ```
 
 ### MCP Server Configuration
@@ -98,15 +82,11 @@ code ~/.config/Claude/claude_desktop_config.json
 code $env:AppData\Claude\claude_desktop_config.json
 ```
 
-## MCP Functions
-
-You can find the list of functions in the [MCPFUNCTIONS.md](MCPFUNCTIONS.md).
-
 ## How To Use
 ### 1. Set IP and Port to connect rosbridge.
 - Open `server.py` and change your `LOCAL_IP`, `ROSBRIDGE_IP` and `ROSBRIDGE_PORT`. (`ROSBRIDGE_PORT`'s default value is `9090`)
 
-### 2. Run rosbridge server.
+### 1. Run rosbridge server.
 ROS 1
 ```bash
 roslaunch rosbridge_server rosbridge_websocket.launch
@@ -116,7 +96,12 @@ ROS 2
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 ```
 
-### 3. Run any AI system that has imported ``ros-mcp-server``.
+### 2. Run any AI system that has imported ``ros-mcp-server``.
+
+### 3. Tell the AI system your and your target robot's IP (Only if running on multiple machines)
+- This step is not needed if you are testing the MCP server on the same machine as rosbridge. (default IP is localhost)
+- If rosbridge is on a different machine, then the MCP server has a tool that lets the language model set the IP.
+- e.g "My IP is 100.xx.xx.xx, connect the ROS MCP server to 100.xx.xx.xx port 9090"
 
 ### 4. Type "Make the robot move forward.".
 <center><img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/how_to_use_1.png" width="500"/></center>
