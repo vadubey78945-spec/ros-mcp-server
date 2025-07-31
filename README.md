@@ -8,23 +8,25 @@
 
 The ROS MCP Server is designed to support robots in performing complex tasks and adapting effectively to various environments by providing a set of functions that transform natural language commands, entered by a user through an LLM, into ROS commands for robot control. Furthermore, by utilizing ``rosbridge``, it is configured to operate with both ``ROS`` and ``ROS2`` systems, and its WebSocket-based communication enables broad applicability across diverse platforms.
 
-Research based on this project can be found in the video linked below.  
-- [An Efficient Robot Control Framework Using the Model Context Protocol](https://www.youtube.com/watch?v=7ut4eqTxwHA)
 
-## Supported Types
 
-- geometry_msgs/Twist
-- sensor_msgs/Image
-- sensor_msgs/JointState
+## Supported ROS commands
 
-## Features
+- **View all ROS topics, publishers, subscribers and nodes**
+- **Query all message types.** This includes custom msgs that are running on the system and requires no code chages to ROS or the MCP server.
+- **Publish and subscribe to any topic**, including custom msg types without requiring code changes. 
+- **Query all running ROS services**
+- **Call any ROS service**, including custom service types
+- **Get and Set ROS params**
+- (Coming soon) ROS Actions
+- (Coming soon) Permission lists, to deny write access to specific topics and services on the robot. 
+
+## Highlights
 
 - **WebSocket-based universal compatibility**: Communicates with both ROS and ROS2 systems using rosbridge, enabling seamless integration regardless of ROS version.
 - **Cross-platform support**: Works on Linux, Windows, and MacOS, making it suitable for diverse development and deployment environments.
 - **Easy integration with LLMs and AI systems**: Natural language commands can be directly translated into robot actions via MCP functions.
-- **Extensible function set**: Easily add new robot control or sensor functions by extending the MCP tool interface.
 - **No ROS node modification required**: Interacts with existing ROS/ROS2 topics and services without changing your robot's core code.
-- **Native ROS/ROS2 command compatibility**: Optionally supports using local ROS/ROS2 libraries, so you can run native ROS commands and tools alongside WebSocket-based control. 
 
 ## Contributing
 Contributions are welcome!  
