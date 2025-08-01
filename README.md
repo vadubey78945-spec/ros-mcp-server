@@ -13,7 +13,22 @@ The **ROS MCP Server** bridges large language models (LLMs) with robot control, 
 No changes to existing robot code are required, since it is built on `rosbridge` — making it fast and easy to integrate into any robotic stack.
 
 ---
+## Examples in action:
+**Controlling the MOCA mobile manipulator in the NVIDIA Isaac Sim environment.** User inputs commands directly into Claude desktop, which uses the MCP server to communicate with a simulated robot in Isaac Sim.
 
+<p align="center">
+  <img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/result.gif" />
+</p>
+
+---
+## Highlights
+
+- **Universal compatibility**: Works with both ROS and ROS2 via rosbridge
+- **Cross-platform support**: Compatible with Linux, Windows, and macOS
+- **AI-ready**: Seamlessly integrates with LLMs and AI systems to drive robot behavior via natural language
+- **No ROS node modification required**: Fully interoperable with existing systems
+
+---
 ## Supported ROS Commands
 
 - **View all running ROS topics and types**
@@ -28,22 +43,21 @@ No changes to existing robot code are required, since it is built on `rosbridge`
 
 ---
 
-## Highlights
+# Getting Started
+Below are instructions to install and run the MCP server with your robot. The MCP server is agnostic to the version of ROS/ROS2 that you are running and works with any LLM that supports MCP. (Our examples use Claude desktop)
 
-- **Universal compatibility**: Works with both ROS and ROS2 via rosbridge
-- **Cross-platform support**: Compatible with Linux, Windows, and macOS
-- **AI-ready**: Seamlessly integrates with LLMs and AI systems to drive robot behavior via natural language
-- **No ROS node modification required**: Fully interoperable with existing systems
-
----
 
 ## Installation
 
-Follow the [installation guide](docs/installation.md) for full setup instructions.
+Follow the [installation guide](docs/installation.md) for full setup instructions on:
+- Cloning the ROS-MCP-server repository
+- Installing `uv` and `rosbridge`
+- Installing `Claude desktop`
+- Configuring Claude to connect to the ROS-MCP-server.
 
 ---
 
-## Basic Usage
+## Usage
 This section walks you through launching rosbridge, connecting to your AI system, and issuing your first natural language command.
 ### 1. Launch rosbridge server
 Execute the below command on the same machine that is running your ROS processes. Source your ROS workspace first in order to have the MCP server access custom message and service types. 
@@ -65,31 +79,25 @@ This could be your LLM wrapper, chatbot, or any custom client. We’ve used Clau
 
 ---
 
-### 3. If not running locally, configure IP
 
-- If the MCP server and rosbridge are running on the same machine, skip this step.
-- If rosbridge is on another machine, use the MCP servers tool to dynamically set the target IP.
+### 3. You're ready to go!
+You can test out your server with any robot that you have running.
 
-Example:
-```plaintext
-My IP is 100.xx.xx.xx. Connect the ROS MCP server to 100.xx.xx.xx port 9090.
+✅ **Tip:** If you don't currently have any robots running, turtlesim is the easiest ROS robot to experiment. It does not have any simulation depenencies such as Gazebo or IsaacSim. You can launch turtlesim in ROS with the below command
 ```
+rosrun turtlesim turtlesim_node
 
-You can also optionally edit `server.py` and update the following default values:
-
-- `LOCAL_IP` (default: `'localhost'`)
-- `ROSBRIDGE_IP` (default: `'localhost'`)
-- `ROSBRIDGE_PORT` (default: `9090`)
----
-
-### 4. You're ready to go! 
-You can test out your server with some of the examples below
+```
+You can spawn additional turtles with
+```
+rosservice call /spawn 5.0 5.0 0.0 "turtle2"
+```
 
 ## Example Commands
 
 ### - Natural language commands
 
-Example:  
+Example:
 ```plaintext
 Make the robot move forward.
 ```
@@ -100,29 +108,23 @@ Make the robot move forward.
 
 ---
 
-### - Monitor your ROS system
-
-#### rosbridge server logs:
-<p align="center">
-  <img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/how_to_use_2.png" />
-</p>
-
-#### ROS topic output:
+### - Query your ROS system
+Example:  
+```plaintext
+Do you see any current velocity commands to the robot?
+```
 <p align="center">
   <img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/how_to_use_3.png" />
 </p>
 
----
 
-## Simulation Examples
-
-MCP in action: controlling the MOCA mobile manipulator in the NVIDIA Isaac Sim environment.
-
+### rosbridge server logs:
+If you watch the logs on rosbridge, you should see the MCP server connect every time you give it a command through the LLM.
 <p align="center">
-  <img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/result.gif" />
+  <img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/how_to_use_2.png" />
 </p>
-
 ---
+
 
 ## Contributing
 

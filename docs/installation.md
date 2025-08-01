@@ -123,3 +123,20 @@ Add the following to the `"mcpServers"` section of the JSON file, replacing `<AB
   }
 }
 ```
+---
+## 6. Confifure IP (Only not running locally)
+
+- If the MCP server and rosbridge are running on the same machine, skip this step.
+- If rosbridge is on another machine, first test IP at runtime using the MCP servers tool to dynamically set the target IP.
+
+Example:
+```plaintext
+My IP is 100.xx.xx.xx. Connect the ROS MCP server to 100.xx.xx.xx port 9090.
+```
+
+You can then edit `server.py` and update the following default values to have the server connected to the right IP at launch:
+
+- `LOCAL_IP` (default: `'localhost'`)
+- `ROSBRIDGE_IP` (default: `'localhost'`)
+- `ROSBRIDGE_PORT` (default: `9090`)
+---
