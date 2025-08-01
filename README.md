@@ -57,13 +57,13 @@ ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 
 ---
 
-### 2. Run any AI system that imports `ros-mcp-server`
+### 2. Run any AI system with the `ros-mcp-server` installed
 
 This could be your LLM wrapper, chatbot, or any custom client. We’ve used Claude Desktop (an LLM interface) for the examples shown below, but any AI system that supports MCP will work.
 
 ---
 
-### 3. If needed, tell the system your and your robot’s IP
+### 3. If not running locally, configure IP
 
 - If the MCP server and rosbridge are running on the same machine, skip this step.
 - If rosbridge is on another machine, this MCP server contains a tool to dynamically set the target IP.
