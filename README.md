@@ -14,7 +14,7 @@ No changes to existing robot code are required, since it is built on `rosbridge`
 
 ---
 ## Examples in action:
-**Controlling the MOCA mobile manipulator in the NVIDIA Isaac Sim environment.** User inputs commands directly into Claude desktop, which uses the MCP server to communicate with a simulated robot in Isaac Sim.
+**Controlling the MOCA mobile manipulator in the NVIDIA Isaac Sim environment.** In this example, the user inputs commands directly into Claude desktop, which can now use the MCP server to directly control a robot simulated in Isaac Sim.
 
 <p align="center">
   <img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/result.gif" />
@@ -118,12 +118,12 @@ Do you see any current velocity commands to the robot?
 </p>
 
 
-### rosbridge server logs:
+<!-- ### rosbridge server logs:
 If you watch the logs on rosbridge, you should see the MCP server connect every time you give it a command through the LLM.
 <p align="center">
   <img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/how_to_use_2.png" />
 </p>
----
+--- -->
 
 
 ## Contributing
