@@ -8,20 +8,12 @@
   <img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/framework.png"/>
 </p>
 
-The **ROS MCP Server** bridges large language models (LLMs) with robot control, allowing users to issue natural language commands that are translated into ROS/ROS2 instructions. It supports both **ROS** and **ROS2**, and communicates via WebSocket for cross-platform compatibility. 
+The **ROS MCP Server** bridges large language models (LLMs) with robot control, allowing users to issue natural language commands that are translated into ROS/ROS2 instructions. It is compatible with any language model that supports MCP, can run with both **ROS** and **ROS2**, and communicatess via WebSocket for cross-platform compatibility. 
 
-No changes to existing robot code are required, since it is built on `rosbridge` — making it fast and easy to integrate into any robotic stack.
-
----
-## Examples in action:
-**Controlling the MOCA mobile manipulator in the NVIDIA Isaac Sim environment.** In this example, the user inputs commands directly into Claude desktop, which can now use the MCP server to directly control a robot simulated in Isaac Sim.
-
-<p align="center">
-  <img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/result.gif" />
-</p>
+It does not require changes to existing robot code, since it is built on `rosbridge` — making it fast and easy to integrate into any robotic stack.
 
 ---
-## ROS MCP Server Highlights
+## Highlights
 
 - **Universal compatibility**: Works with both ROS and ROS2 via rosbridge
 - **Cross-platform support**: Compatible with Linux, Windows, and macOS
@@ -40,6 +32,15 @@ No changes to existing robot code are required, since it is built on `rosbridge`
 - **Get and set ROS parameters**
 - *(Coming soon)*: Full ROS Action support
 - *(Coming soon)*: Permission management to restrict write access to selected topics and services
+
+---
+# Examples in action:
+**Controlling the MOCA mobile manipulator in the NVIDIA Isaac Sim environment.** In this example, the user inputs commands directly into Claude desktop, which can now use the MCP server to directly control a robot simulated in Isaac Sim.
+
+<p align="center">
+  <img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/result.gif" />
+</p>
+
 
 ---
 
