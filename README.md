@@ -8,7 +8,9 @@
   <img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/framework.png"/>
 </p>
 
-The **ROS MCP Server** bridges large language models (LLMs) with robot control, allowing users to issue natural language commands that are translated into ROS/ROS2 instructions. Built on `rosbridge`, it supports both **ROS** and **ROS2**, and communicates via WebSocket for cross-platform compatibility. No changes to existing robot code are required — making it fast and easy to integrate into any robotic stack.
+The **ROS MCP Server** bridges large language models (LLMs) with robot control, allowing users to issue natural language commands that are translated into ROS/ROS2 instructions. It supports both **ROS** and **ROS2**, and communicates via WebSocket for cross-platform compatibility. 
+
+No changes to existing robot code are required, since it is built on `rosbridge` — making it fast and easy to integrate into any robotic stack.
 
 ---
 
