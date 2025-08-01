@@ -41,9 +41,9 @@ Follow the [installation guide](docs/installation.md) for full setup instruction
 
 ---
 
-## How To Use
-
-### 1. Run the rosbridge server
+## Basic Usage
+This section walks you through launching rosbridge, connecting to your AI system, and issuing your first natural language command.
+### 1. Launch rosbridge server
 Execute the below command on the same machine that is running your ROS processes. Source your ROS workspace first in order to have the MCP server access custom message and service types. 
 #### ROS 1:
 ```bash
@@ -66,14 +66,14 @@ This could be your LLM wrapper, chatbot, or any custom client. We’ve used Clau
 ### 3. If not running locally, configure IP
 
 - If the MCP server and rosbridge are running on the same machine, skip this step.
-- If rosbridge is on another machine, this MCP server contains a tool to dynamically set the target IP.
+- If rosbridge is on another machine, use the MCP servers tool to dynamically set the target IP.
 
 Example:
 ```plaintext
 My IP is 100.xx.xx.xx. Connect the ROS MCP server to 100.xx.xx.xx port 9090.
 ```
 
-You can also optionally edit `server.py` and update the following values:
+You can also optionally edit `server.py` and update the following default values:
 
 - `LOCAL_IP` (default: `'localhost'`)
 - `ROSBRIDGE_IP` (default: `'localhost'`)
@@ -83,7 +83,7 @@ You can also optionally edit `server.py` and update the following values:
 ### 4. You're ready to go! 
 You can test out your server with some of the examples below
 
-## Example Uses
+## Example Commands
 
 ### - Natural language commands
 
