@@ -4,9 +4,10 @@ version = "0.2.0"
 description = "MCP tool server for ROS using rosbridge WebSocket"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = { text = "Apache 2.0" }
 authors = [
-    { name = "Your Name", email = "you@example.com" }
+    { name = "Rohit John Varghese"},
+    { name = "Jungsoo Lee"}
 ]
 
 dependencies = [

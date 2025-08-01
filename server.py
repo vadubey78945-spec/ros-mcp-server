@@ -6,9 +6,9 @@ from mcp.server.fastmcp import FastMCP
 from utils.websocket_manager import WebSocketManager
 
 # ROS bridge connection settings
-LOCAL_IP = "127.0.0.1"  # Replace with your local IP address. Default is localhost.
-ROSBRIDGE_IP = "127.0.0.1"  # Replace with your rosbridge server IP address. Default is localhost.
-ROSBRIDGE_PORT = 9090
+LOCAL_IP = "127.0.0.1"      # Default is localhost. Replace with your local IP or set using the LLM. 
+ROSBRIDGE_IP = "127.0.0.1"  # Default is localhost. Replace with your local IPor set using the LLM. 
+ROSBRIDGE_PORT = 9090       # Rosbridge default is 9090. Replace with your rosbridge port or set using the LLM.
 
 # Initialize MCP server and WebSocket manager
 mcp = FastMCP("ros-mcp-server")

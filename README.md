@@ -1,7 +1,6 @@
 ## Overview
 ![Static Badge](https://img.shields.io/badge/ROS-Available-green)
 ![Static Badge](https://img.shields.io/badge/ROS2-Available-green)
-[![smithery badge](https://smithery.ai/badge/@lpigeon/ros-mcp-server)](https://smithery.ai/server/@lpigeon/ros-mcp-server)
 ![Static Badge](https://img.shields.io/badge/License-MIT-blue)
 
 <center><img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/framework.png"/></center>
@@ -28,61 +27,9 @@ The ROS MCP Server is designed to support robots in performing complex tasks and
 - **Easy integration with LLMs and AI systems**: Natural language commands can be directly translated into robot actions via MCP functions.
 - **No ROS node modification required**: Interacts with existing ROS/ROS2 topics and services without changing your robot's core code.
 
-## Contributing
-Contributions are welcome!  
-Whether you're fixing a typo, adding a new function, or suggesting improvements, your help is appreciated.  
-Please follow the [contributing guidelines](CONTRIBUTING.md) for more details on how to contribute to this project.
 
 ## Installation
-
-### `uv` Installation
-- To install `uv`, you can use the following command:
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-or
-```bash
-pip install uv
-```
-
-### MCP Server Configuration
-Set MCP setting to mcp.json.
-
-```bash
-{
-  "mcpServers": {
-    "ros-mcp-server": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "/ABSOLUTE/PATH/TO/PARENT/FOLDER/ros-mcp-server",,
-        "run",
-        "server.py"
-      ]
-    }
-  }
-}
-```
-
-If you use Claude Desktop, you can find mcp.json using the following command:
-
-- MacOS
-```bash
-code ~/Library/Application\ Support/Claude/claude_desktop_config.json
-```
-
-- Linux(Ubuntu)
-  
-You can install Claude Desktop to use [claude-desktop-debian](https://github.com/aaddrick/claude-desktop-debian).
-
-```bash
-code ~/.config/Claude/claude_desktop_config.json
-```
-
-- Windows
-```bash
-code $env:AppData\Claude\claude_desktop_config.json
-```
+Follow the [installation guide](docs/installation.md)
 
 ## How To Use
 ### 1. Set IP and Port to connect rosbridge.
@@ -119,3 +66,9 @@ ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 MCP-based control using the MOCA mobile manipulator within the NVIDIA Isaac Sim simulation environment. 
 
 <center><img src="https://github.com/lpigeon/ros-mcp-server/blob/main/img/result.gif" /></center>
+
+
+## Contributing
+Contributions are welcome!  
+Whether you're fixing a typo, adding a new function, or suggesting improvements, your help is appreciated.  
+Please follow the [contributing guidelines](CONTRIBUTING.md) for more details on how to contribute to this project.
