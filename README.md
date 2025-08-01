@@ -21,7 +21,7 @@ No changes to existing robot code are required, since it is built on `rosbridge`
 </p>
 
 ---
-## Highlights
+## ROS MCP Server Highlights
 
 - **Universal compatibility**: Works with both ROS and ROS2 via rosbridge
 - **Cross-platform support**: Compatible with Linux, Windows, and macOS
