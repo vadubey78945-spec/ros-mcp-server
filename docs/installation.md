@@ -1,37 +1,100 @@
-# Installation
+# Installation Guide
 
-## Clone repository
-Clone this repository. Note the abslute path to me used later in the configuration file. 
+Follow these steps to set up the ROS MCP Server and connect it with a supported language model client (e.g., Claude Desktop).
 
-## Install `uv` 
-- To install `uv`, you can use the following command:
+---
+
+## 1. Clone the Repository
+
+```bash
+git clone https://github.com/r-johnv/ros-mcp-server.git
+```
+
+Note the **absolute path** to the cloned directory — you’ll need this later when configuring your language model client.
+
+---
+
+## 2. Install UV (Python Virtual Environment Manager)
+
+You can install [`uv`](https://github.com/astral-sh/uv) using one of the following methods:
+
+### Option A: Shell installer
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
-or
+
+### Option B: Using pip
 ```bash
 pip install uv
 ```
 
-## Install Language Model Client
-Any language model client that supports MCP can be used. We use Claude Desktop as an example. 
+---
 
-- Windows/MacOS installation from [claude.ai](https://claude.ai/download).
-- Linux workaround from [claude-desktop-debian](https://github.com/aaddrick/claude-desktop-debian).
+## 3. Install `rosbridge_server`
 
+This package is required for MCP to interface with ROS or ROS 2 via WebSocket. It needs to be installed on the same machine that is running ROS.
 
-## MCP Server Configuration
-In your language model client, set MCP setting to mcp.json.
-Make sure to set the path to your cloned repository. 
-
+### For ROS 1 (Noetic, Melodic, etc.)
 ```bash
+sudo apt install ros-${ROS_DISTRO}-rosbridge-server
+```
+
+### For ROS 2 (Foxy, Humble, etc.)
+```bash
+sudo apt install ros-${ROS_DISTRO}-rosbridge-server
+```
+
+Test by launching the rosbridge server in your ROS environment:
+```bash
+# ROS 1
+roslaunch rosbridge_server rosbridge_websocket.launch
+
+# ROS 2
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+```
+
+> ⚠️ Don’t forget to `source` your ROS workspace before launching, especially if you're using custom messages or services.
+
+---
+
+## 4. Install a Language Model Client
+
+Any LLM client that supports MCP can be used. We use **Claude Desktop** for testing and development.
+
+- **MacOS / Windows**: Download from [claude.ai](https://claude.ai/download)
+- **Linux (Unofficial)**: Use the community-supported [claude-desktop-debian](https://github.com/aaddrick/claude-desktop-debian)
+
+---
+
+## 5. Configure the Language Model Client (Specific to Claude Desktop)
+
+Locate and edit the `claude_desktop_config.json` file:
+
+- **MacOS**
+```bash
+code ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+
+- **Linux (Ubuntu)**
+```bash
+code ~/.config/Claude/claude_desktop_config.json
+```
+
+- **Windows (PowerShell)**
+```powershell
+code $env:AppData\Claude\claude_desktop_config.json
+```
+
+Add the following to the `"mcpServers"` section of the JSON file, replacing `<ABSOLUTE_PATH>` with the path to your `ros-mcp-server` folder:
+
+```json
 {
   "mcpServers": {
     "ros-mcp-server": {
       "command": "uv",
       "args": [
         "--directory",
-        "/<ABSOLUTE_PATH_TO_PARENT_FOLDER>/ros-mcp-server",
+        "/<ABSOLUTE_PATH>/ros-mcp-server",
         "run",
         "server.py"
       ]
@@ -40,21 +103,23 @@ Make sure to set the path to your cloned repository.
 }
 ```
 
-
-If you use Claude Desktop, you can find mcp.json using the following command:
-
-- MacOS
-```bash
-code ~/Library/Application\ Support/Claude/claude_desktop_config.json
+> ✅ **Tip:** This configuration also works on **Windows using WSL**, with Claude on Windows and the server on WSL. Make sure to: 
+> - Set the **full WSL path** to your `uv` installation (e.g., `/home/youruser/.local/bin/uv`)
+> - Use the correct **WSL distribution name** (e.g., `"Ubuntu-22.04"`)
+```json
+{
+  "mcpServers": {
+    "ros-mcp-server": {
+      "command": "wsl",
+      "args": [
+        "-d", "Ubuntu-22.04",
+        "`/home/youruser/.local/bin/uv",
+        "--directory",
+        "/<ABSOLUTE_PATH>/ros-mcp-server",
+        "run",
+        "server.py"
+      ]
+    }
+  }
+}
 ```
-
-- Linux(Ubuntu)
-```bash
-code ~/.config/Claude/claude_desktop_config.json
-```
-
-- Windows
-```bash
-code $env:AppData\Claude\claude_desktop_config.json
-```
-Note: This does work with Claude on windows with the server running on WSL.
