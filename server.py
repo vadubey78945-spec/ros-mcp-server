@@ -4,6 +4,7 @@ import time
 from mcp.server.fastmcp import FastMCP
 
 from utils.websocket_manager import WebSocketManager
+from utils.network_utils import ping_ip_and_port
 
 # ROS bridge connection settings
 LOCAL_IP = "127.0.0.1"  # Default is localhost. Replace with your local IP or set using the LLM.
@@ -793,6 +794,36 @@ def call_service(service_name: str, service_type: str, request: dict) -> dict:
             "success": False,
             "error": "No response received from service call",
         }
+
+
+## ############################################################################################## ##
+##
+##                       NETWORK DIAGNOSTICS
+##
+## ############################################################################################## ##
+
+
+@mcp.tool(
+    description=(
+        "Ping a robot's IP address and check if a specific port is open.\n"
+        "Example:\n"
+        "ping_robot(ip='192.168.1.100', port=9090)"
+    )
+)
+def ping_robot(ip: str, port: int, ping_timeout: float = 2.0, port_timeout: float = 2.0) -> dict:
+    """
+    Ping an IP address and check if a specific port is open.
+
+    Args:
+        ip (str): The IP address to ping (e.g., '192.168.1.100')
+        port (int): The port number to check (e.g., 9090)
+        ping_timeout (float): Timeout for ping in seconds. Default = 2.0.
+        port_timeout (float): Timeout for port check in seconds. Default = 2.0.
+
+    Returns:
+        dict: Contains ping and port check results with detailed status information.
+    """
+    return ping_ip_and_port(ip, port, ping_timeout, port_timeout)
 
 
 if __name__ == "__main__":
