@@ -1,7 +1,7 @@
 import json
 from typing import Optional, Union
 
-import websocket._core as websocket
+import websocket
 
 
 class WebSocketManager:
