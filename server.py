@@ -806,6 +806,7 @@ def call_service(service_name: str, service_type: str, request: dict) -> dict:
 @mcp.tool(
     description=(
         "Ping a robot's IP address and check if a specific port is open.\n"
+        "A successful ping to the IP but not the port can indicate that ROSbridge is not running.\n"
         "Example:\n"
         "ping_robot(ip='192.168.1.100', port=9090)"
     )
