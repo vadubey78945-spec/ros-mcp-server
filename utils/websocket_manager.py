@@ -8,10 +8,10 @@ import websocket
 def parse_json(raw: Optional[Union[str, bytes]]) -> Optional[dict]:
     """
     Safely parse JSON from string or bytes.
-    
+
     Args:
         raw: JSON string, bytes, or None
-        
+
     Returns:
         Parsed dict if successful, None if raw is None or parsing fails
     """
@@ -26,9 +26,10 @@ def parse_json(raw: Optional[Union[str, bytes]]) -> Optional[dict]:
 
 
 class WebSocketManager:
-    def __init__(self, ip: str, port: int):
+    def __init__(self, ip: str, port: int, default_timeout: float = 2.0):
         self.ip = ip
         self.port = port
+        self.default_timeout = default_timeout
         self.ws = None
         self.lock = threading.Lock()
 
@@ -51,8 +52,8 @@ class WebSocketManager:
         if self.ws is None or not self.ws.connected:
             try:
                 url = f"ws://{self.ip}:{self.port}"
-                self.ws = websocket.create_connection(url, timeout=2.0)
-                print("[WebSocket] Connected (2s timeout)")
+                self.ws = websocket.create_connection(url, timeout=self.default_timeout)
+                print(f"[WebSocket] Connected ({self.default_timeout}s timeout)")
                 return None  # no error
             except Exception as e:
                 error_msg = f"[WebSocket] Connection error: {e}"
@@ -92,12 +93,13 @@ class WebSocketManager:
 
             return "[WebSocket] Not connected, send aborted."
 
-    def receive(self, timeout: float = 2.0) -> Optional[Union[str, bytes]]:
+    def receive(self, timeout: Optional[float] = None) -> Optional[Union[str, bytes]]:
         """
         Receive a single message from rosbridge within the given timeout.
 
         Args:
-            timeout (float): Seconds to wait before timing out. Default = 2.0.
+            timeout (Optional[float]): Seconds to wait before timing out.
+                                     If None, uses the default timeout.
 
         Returns:
             Optional[str]: JSON string received from rosbridge, or None if timeout/error.
@@ -106,8 +108,10 @@ class WebSocketManager:
             self.connect()
             if self.ws:
                 try:
+                    # Use default timeout if none specified
+                    actual_timeout = timeout if timeout is not None else self.default_timeout
                     # Temporarily set the receive timeout
-                    self.ws.settimeout(timeout)
+                    self.ws.settimeout(actual_timeout)
                     raw = self.ws.recv()  # rosbridge sends JSON as a string
                     return raw
                 except Exception as e:
@@ -116,13 +120,14 @@ class WebSocketManager:
                     return None
             return None
 
-    def request(self, message: dict, timeout: float = 2.0) -> dict:
+    def request(self, message: dict, timeout: Optional[float] = None) -> dict:
         """
         Send a request to Rosbridge and return the response.
 
         Args:
             message (dict): The Rosbridge message dictionary to send.
-            timeout (float): Seconds to wait for a response. Default = 2.0.
+            timeout (Optional[float]): Seconds to wait for a response.
+                                     If None, uses the default timeout.
 
         Returns:
             dict:

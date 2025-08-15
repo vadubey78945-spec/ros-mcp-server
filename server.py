@@ -1,5 +1,6 @@
 import json
 import time
+from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
 
@@ -14,7 +15,9 @@ ROSBRIDGE_PORT = (
 
 # Initialize MCP server and WebSocket manager
 mcp = FastMCP("ros-mcp-server")
-ws_manager = WebSocketManager(ROSBRIDGE_IP, ROSBRIDGE_PORT)
+ws_manager = WebSocketManager(
+    ROSBRIDGE_IP, ROSBRIDGE_PORT, default_timeout=5.0
+)  # Increased default timeout for ROS operations
 
 
 @mcp.tool(description=("Set the IP and port for the WebSocket connection."))
