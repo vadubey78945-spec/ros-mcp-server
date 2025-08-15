@@ -13,14 +13,15 @@ def parse_json(raw: Optional[Union[str, bytes]]) -> Optional[dict]:
         raw: JSON string, bytes, or None
 
     Returns:
-        Parsed dict if successful, None if raw is None or parsing fails
+        Parsed dict if successful, None if raw is None, parsing fails, or result is not a dict
     """
     if raw is None:
         return None
     if isinstance(raw, bytes):
         raw = raw.decode("utf-8", errors="replace")
     try:
-        return json.loads(raw)
+        result = json.loads(raw)
+        return result if isinstance(result, dict) else None
     except (json.JSONDecodeError, TypeError):
         return None
 
@@ -31,7 +32,7 @@ class WebSocketManager:
         self.port = port
         self.default_timeout = default_timeout
         self.ws = None
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
 
     def set_ip(self, ip: str, port: int):
         """
@@ -49,18 +50,19 @@ class WebSocketManager:
             None if successful,
             or an error message string if connection failed.
         """
-        if self.ws is None or not self.ws.connected:
-            try:
-                url = f"ws://{self.ip}:{self.port}"
-                self.ws = websocket.create_connection(url, timeout=self.default_timeout)
-                print(f"[WebSocket] Connected ({self.default_timeout}s timeout)")
-                return None  # no error
-            except Exception as e:
-                error_msg = f"[WebSocket] Connection error: {e}"
-                print(error_msg)
-                self.ws = None
-                return error_msg
-        return None  # already connected, no error
+        with self.lock:
+            if self.ws is None or not self.ws.connected:
+                try:
+                    url = f"ws://{self.ip}:{self.port}"
+                    self.ws = websocket.create_connection(url, timeout=self.default_timeout)
+                    print(f"[WebSocket] Connected ({self.default_timeout}s timeout)")
+                    return None  # no error
+                except Exception as e:
+                    error_msg = f"[WebSocket] Connection error: {e}"
+                    print(error_msg)
+                    self.ws = None
+                    return error_msg
+            return None  # already connected, no error
 
     def send(self, message: dict) -> Optional[str]:
         """
@@ -135,17 +137,12 @@ class WebSocketManager:
                 - {"error": "<error message>"} if connection/send/receive fails.
                 - {"error": "invalid_json", "raw": <response>} if decoding fails.
         """
-        # Attempt connection
-        conn_error = self.connect()
-        if conn_error:
-            return {"error": conn_error}
-
-        # Attempt to send the message
+        # Attempt to send the message (connect() is called internally in send())
         send_error = self.send(message)
         if send_error:
             return {"error": send_error}
 
-        # Attempt to receive a response
+        # Attempt to receive a response (connect() is called internally in receive())
         response = self.receive(timeout=timeout)
         if response is None:
             return {"error": "no response or timeout from rosbridge"}
