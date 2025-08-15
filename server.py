@@ -1,5 +1,6 @@
 import json
 import time
+from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
 
@@ -7,7 +8,6 @@ from utils.websocket_manager import WebSocketManager
 from utils.network_utils import ping_ip_and_port
 
 # ROS bridge connection settings
-LOCAL_IP = "127.0.0.1"  # Default is localhost. Replace with your local IP or set using the LLM.
 ROSBRIDGE_IP = "127.0.0.1"  # Default is localhost. Replace with your local IPor set using the LLM.
 ROSBRIDGE_PORT = (
     9090  # Rosbridge default is 9090. Replace with your rosbridge port or set using the LLM.
@@ -15,24 +15,25 @@ ROSBRIDGE_PORT = (
 
 # Initialize MCP server and WebSocket manager
 mcp = FastMCP("ros-mcp-server")
-ws_manager = WebSocketManager(ROSBRIDGE_IP, ROSBRIDGE_PORT, LOCAL_IP)
+ws_manager = WebSocketManager(
+    ROSBRIDGE_IP, ROSBRIDGE_PORT, default_timeout=5.0
+)  # Increased default timeout for ROS operations
 
 
 @mcp.tool(description=("Set the IP and port for the WebSocket connection."))
-def set_websocket_ip(ip: str, port: int, local_ip: str) -> dict:
+def set_websocket_ip(ip: str, port: int) -> dict:
     """
     Set the IP and port for the WebSocket connection.
 
     Args:
         ip (str): The IP address of the rosbridge server.
         port (int): The port number of the rosbridge server.
-        local_ip (Optional[str]): Local IP address to bind to, if needed.
 
     Returns:
         dict: Confirmation message with the new settings.
     """
-    ws_manager.set_ip(ip, port, local_ip)
-    return {"message": f"WebSocket IP set to {ip}:{port} (local IP: {local_ip})"}
+    ws_manager.set_ip(ip, port)
+    return {"message": f"WebSocket IP set to {ip}:{port}"}
 
 
 @mcp.tool(description=("Fetch available topics from the ROS bridge.\nExample:\nget_topics()"))
@@ -48,8 +49,8 @@ def get_topics() -> dict:
     message = {"op": "call_service", "service": "/rosapi/topics", "id": "get_topics_request_1"}
 
     # Request topic list from rosbridge
-    response = ws_manager.request(message)
-    ws_manager.close()
+    with ws_manager:
+        response = ws_manager.request(message)
 
     # Return topic info if present
     if response and "values" in response:
@@ -82,8 +83,8 @@ def get_topic_type(topic: str) -> dict:
     }
 
     # Request topic type from rosbridge
-    response = ws_manager.request(message)
-    ws_manager.close()
+    with ws_manager:
+        response = ws_manager.request(message)
 
     # Return topic type if present
     if response and "values" in response:
@@ -124,8 +125,8 @@ def get_message_details(message_type: str) -> dict:
     }
 
     # Request message details from rosbridge
-    response = ws_manager.request(message)
-    ws_manager.close()
+    with ws_manager:
+        response = ws_manager.request(message)
 
     # Return message structure if present
     if response and "values" in response:
@@ -179,8 +180,8 @@ def get_publishers_for_topic(topic: str) -> dict:
     }
 
     # Request publishers from rosbridge
-    response = ws_manager.request(message)
-    ws_manager.close()
+    with ws_manager:
+        response = ws_manager.request(message)
 
     # Return publishers if present
     if response and "values" in response:
@@ -218,8 +219,8 @@ def get_subscribers_for_topic(topic: str) -> dict:
     }
 
     # Request subscribers from rosbridge
-    response = ws_manager.request(message)
-    ws_manager.close()
+    with ws_manager:
+        response = ws_manager.request(message)
 
     # Return subscribers if present
     if response and "values" in response:
@@ -262,10 +263,8 @@ def subscribe_once(topic: str = "", msg_type: str = "") -> dict:
     }
 
     # Send subscription request & wait for a single response
-    response = ws_manager.request(subscribe_msg)
-
-    # Always close the websocket after a single-shot subscription
-    ws_manager.close()
+    with ws_manager:
+        response = ws_manager.request(subscribe_msg)
 
     # Handle rosbridge response
     if "error" in response:
@@ -311,17 +310,14 @@ def publish_once(topic: str = "", msg_type: str = "", msg: dict = {}) -> dict:
     publish_msg = {"op": "publish", "topic": topic, "msg": msg}
 
     # Send the message via ws_manager
-    send_error = ws_manager.send(publish_msg)
-    if send_error:
-        ws_manager.close()
-        return {"error": send_error}
+    with ws_manager:
+        send_error = ws_manager.send(publish_msg)
+        if send_error:
+            return {"error": send_error}
 
-    # rosbridge typically does NOT respond to publish requests
-    # But we can still attempt to receive in case of errors
-    response = ws_manager.receive()
-
-    # Always close after sending
-    ws_manager.close()
+        # rosbridge typically does NOT respond to publish requests
+        # But we can still attempt to receive in case of errors
+        response = ws_manager.receive()
 
     # No response is normal for publish
     if response is None or response.strip() == "":
@@ -376,31 +372,30 @@ def subscribe_for_duration(
         "queue_length": 10,  # allow some buffering
     }
 
-    send_error = ws_manager.send(subscribe_msg)
-    if send_error:
-        ws_manager.close()
-        return {"error": f"Failed to subscribe: {send_error}"}
+    with ws_manager:
+        send_error = ws_manager.send(subscribe_msg)
+        if send_error:
+            return {"error": f"Failed to subscribe: {send_error}"}
 
-    collected_messages = []
-    end_time = time.time() + duration
+        collected_messages = []
+        end_time = time.time() + duration
 
-    # Loop until duration expires or we hit max_messages
-    while time.time() < end_time and len(collected_messages) < max_messages:
-        response = ws_manager.receive(timeout=0.5)  # non-blocking small timeout
-        if response:
-            try:
-                msg_data = json.loads(response)
-                # rosbridge subscription responses include "msg" field
-                if "msg" in msg_data:
-                    collected_messages.append(msg_data["msg"])
-            except json.JSONDecodeError:
-                # skip malformed data
-                continue
+        # Loop until duration expires or we hit max_messages
+        while time.time() < end_time and len(collected_messages) < max_messages:
+            response = ws_manager.receive(timeout=0.5)  # non-blocking small timeout
+            if response:
+                try:
+                    msg_data = json.loads(response)
+                    # rosbridge subscription responses include "msg" field
+                    if "msg" in msg_data:
+                        collected_messages.append(msg_data["msg"])
+                except json.JSONDecodeError:
+                    # skip malformed data
+                    continue
 
-    # Unsubscribe when done
-    unsubscribe_msg = {"op": "unsubscribe", "topic": topic}
-    ws_manager.send(unsubscribe_msg)
-    ws_manager.close()
+        # Unsubscribe when done
+        unsubscribe_msg = {"op": "unsubscribe", "topic": topic}
+        ws_manager.send(unsubscribe_msg)
 
     return {
         "topic": topic,
@@ -449,21 +444,18 @@ def publish_for_durations(
         return {"error": "messages and durations must have the same length"}
 
     # Iterate and publish each message with a delay
-    for i, (msg, delay) in enumerate(zip(messages, durations)):
-        # Build the rosbridge publish message
-        publish_msg = {"op": "publish", "topic": topic, "msg": msg}
+    with ws_manager:
+        for i, (msg, delay) in enumerate(zip(messages, durations)):
+            # Build the rosbridge publish message
+            publish_msg = {"op": "publish", "topic": topic, "msg": msg}
 
-        # Send it
-        send_error = ws_manager.send(publish_msg)
-        if send_error:
-            ws_manager.close()
-            return {"error": f"Failed at message {i + 1}: {send_error}", "published_count": i}
+            # Send it
+            send_error = ws_manager.send(publish_msg)
+            if send_error:
+                return {"error": f"Failed at message {i + 1}: {send_error}", "published_count": i}
 
-        # Wait before sending the next message
-        time.sleep(delay)
-
-    # Close after the full sequence
-    ws_manager.close()
+            # Wait before sending the next message
+            time.sleep(delay)
 
     return {"success": True, "published_count": len(messages), "topic": topic, "msg_type": msg_type}
 
@@ -494,8 +486,8 @@ def get_services() -> dict:
     }
 
     # Request service list from rosbridge
-    response = ws_manager.request(message)
-    ws_manager.close()
+    with ws_manager:
+        response = ws_manager.request(message)
 
     # Return service info if present
     if response and "values" in response:
@@ -531,8 +523,8 @@ def get_service_type(service: str) -> dict:
     }
 
     # Request service type from rosbridge
-    response = ws_manager.request(message)
-    ws_manager.close()
+    with ws_manager:
+        response = ws_manager.request(message)
 
     # Return service type if present
     if response and "values" in response:
@@ -606,9 +598,7 @@ def get_service_details(service_type: str) -> dict:
                     fields[name] = ftype
                 result["response"] = {"fields": fields, "field_count": len(fields)}
 
-    ws_manager.close()
-
-    # Check if we got any data
+        # Check if we got any data
     if not result["request"] and not result["response"]:
         return {"error": f"Service type {service_type} not found or has no definition"}
 
@@ -643,8 +633,8 @@ def get_service_providers(service: str) -> dict:
     }
 
     # Request service providers from rosbridge
-    response = ws_manager.request(message)
-    ws_manager.close()
+    with ws_manager:
+        response = ws_manager.request(message)
 
     # Return service providers if present
     if response and "values" in response:
@@ -678,54 +668,52 @@ def inspect_all_services() -> dict:
         "id": "inspect_all_services_request_1",
     }
 
-    services_response = ws_manager.request(services_message)
+    with ws_manager:
+        services_response = ws_manager.request(services_message)
 
-    if not services_response or "values" not in services_response:
-        ws_manager.close()
-        return {"error": "Failed to get services list"}
+        if not services_response or "values" not in services_response:
+            return {"error": "Failed to get services list"}
 
-    services = services_response["values"].get("services", [])
-    service_details = {}
+        services = services_response["values"].get("services", [])
+        service_details = {}
 
-    # Get details for each service
-    for service in services:
-        # Get service type
-        type_message = {
-            "op": "call_service",
-            "service": "/rosapi/service_type",
-            "type": "rosapi/ServiceType",
-            "args": {"service": service},
-            "id": f"get_type_{service.replace('/', '_')}",
-        }
+        # Get details for each service
+        for service in services:
+            # Get service type
+            type_message = {
+                "op": "call_service",
+                "service": "/rosapi/service_type",
+                "type": "rosapi/ServiceType",
+                "args": {"service": service},
+                "id": f"get_type_{service.replace('/', '_')}",
+            }
 
-        type_response = ws_manager.request(type_message)
-        service_type = ""
-        if type_response and "values" in type_response:
-            service_type = type_response["values"].get("type", "unknown")
+            type_response = ws_manager.request(type_message)
+            service_type = ""
+            if type_response and "values" in type_response:
+                service_type = type_response["values"].get("type", "unknown")
 
-        # Get service providers
-        providers_message = {
-            "op": "call_service",
-            "service": "/rosapi/service_providers",
-            "type": "rosapi/ServiceProviders",
-            "args": {"service": service},
-            "id": f"get_providers_{service.replace('/', '_')}",
-        }
+            # Get service providers
+            providers_message = {
+                "op": "call_service",
+                "service": "/rosapi/service_providers",
+                "type": "rosapi/ServiceProviders",
+                "args": {"service": service},
+                "id": f"get_providers_{service.replace('/', '_')}",
+            }
 
-        providers_response = ws_manager.request(providers_message)
-        providers = []
-        if providers_response and "values" in providers_response:
-            providers = providers_response["values"].get("providers", [])
+            providers_response = ws_manager.request(providers_message)
+            providers = []
+            if providers_response and "values" in providers_response:
+                providers = providers_response["values"].get("providers", [])
 
-        service_details[service] = {
-            "type": service_type,
-            "providers": providers,
-            "provider_count": len(providers),
-        }
+            service_details[service] = {
+                "type": service_type,
+                "providers": providers,
+                "provider_count": len(providers),
+            }
 
-    ws_manager.close()
-
-    return {"total_services": len(services), "services": service_details}
+        return {"total_services": len(services), "services": service_details}
 
 
 @mcp.tool(
@@ -757,8 +745,8 @@ def call_service(service_name: str, service_type: str, request: dict) -> dict:
     }
 
     # Call the service through rosbridge
-    response = ws_manager.request(message)
-    ws_manager.close()
+    with ws_manager:
+        response = ws_manager.request(message)
 
     # Return service response if present
     if response:

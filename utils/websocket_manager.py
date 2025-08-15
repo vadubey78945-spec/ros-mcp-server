@@ -1,25 +1,45 @@
 import json
+import threading
 from typing import Optional, Union
 
 import websocket
 
 
+def parse_json(raw: Optional[Union[str, bytes]]) -> Optional[dict]:
+    """
+    Safely parse JSON from string or bytes.
+
+    Args:
+        raw: JSON string, bytes, or None
+
+    Returns:
+        Parsed dict if successful, None if raw is None or parsing fails
+    """
+    if raw is None:
+        return None
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8", errors="replace")
+    try:
+        return json.loads(raw)
+    except (json.JSONDecodeError, TypeError):
+        return None
+
+
 class WebSocketManager:
-    def __init__(self, ip: str, port: int, local_ip: str):
+    def __init__(self, ip: str, port: int, default_timeout: float = 2.0):
         self.ip = ip
         self.port = port
-        self.local_ip = local_ip
+        self.default_timeout = default_timeout
         self.ws = None
+        self.lock = threading.Lock()
 
-    def set_ip(self, ip: str, port: int, local_ip: Optional[str] = None):
+    def set_ip(self, ip: str, port: int):
         """
         Set the IP and port for the WebSocket connection.
         """
         self.ip = ip
         self.port = port
-        if local_ip is not None:
-            self.local_ip = local_ip
-        print(f"[WebSocket] IP set to {self.ip}:{self.port} (local IP: {self.local_ip})")
+        print(f"[WebSocket] IP set to {self.ip}:{self.port}")
 
     def connect(self) -> Optional[str]:
         """
@@ -32,8 +52,8 @@ class WebSocketManager:
         if self.ws is None or not self.ws.connected:
             try:
                 url = f"ws://{self.ip}:{self.port}"
-                self.ws = websocket.create_connection(url, timeout=2.0)
-                print("[WebSocket] Connected (2s timeout)")
+                self.ws = websocket.create_connection(url, timeout=self.default_timeout)
+                print(f"[WebSocket] Connected ({self.default_timeout}s timeout)")
                 return None  # no error
             except Exception as e:
                 error_msg = f"[WebSocket] Connection error: {e}"
@@ -50,58 +70,64 @@ class WebSocketManager:
             None if successful,
             or an error message string if send failed.
         """
-        conn_error = self.connect()
-        if conn_error:
-            return conn_error  # failed to connect
+        with self.lock:
+            conn_error = self.connect()
+            if conn_error:
+                return conn_error  # failed to connect
 
-        if self.ws:
-            try:
-                json_msg = json.dumps(message)  # ensure it's JSON-serializable
-                self.ws.send(json_msg)
-                return None  # no error
-            except TypeError as e:
-                error_msg = f"[WebSocket] JSON serialization error: {e}"
-                print(error_msg)
-                self.close()
-                return error_msg
-            except Exception as e:
-                error_msg = f"[WebSocket] Send error: {e}"
-                print(error_msg)
-                self.close()
-                return error_msg
+            if self.ws:
+                try:
+                    json_msg = json.dumps(message)  # ensure it's JSON-serializable
+                    self.ws.send(json_msg)
+                    return None  # no error
+                except TypeError as e:
+                    error_msg = f"[WebSocket] JSON serialization error: {e}"
+                    print(error_msg)
+                    self.close()
+                    return error_msg
+                except Exception as e:
+                    error_msg = f"[WebSocket] Send error: {e}"
+                    print(error_msg)
+                    self.close()
+                    return error_msg
 
-        return "[WebSocket] Not connected, send aborted."
+            return "[WebSocket] Not connected, send aborted."
 
-    def receive(self, timeout: float = 2.0) -> Optional[Union[str, bytes]]:
+    def receive(self, timeout: Optional[float] = None) -> Optional[Union[str, bytes]]:
         """
         Receive a single message from rosbridge within the given timeout.
 
         Args:
-            timeout (float): Seconds to wait before timing out. Default = 2.0.
+            timeout (Optional[float]): Seconds to wait before timing out.
+                                     If None, uses the default timeout.
 
         Returns:
             Optional[str]: JSON string received from rosbridge, or None if timeout/error.
         """
-        self.connect()
-        if self.ws:
-            try:
-                # Temporarily set the receive timeout
-                self.ws.settimeout(timeout)
-                raw = self.ws.recv()  # rosbridge sends JSON as a string
-                return raw
-            except Exception as e:
-                print(f"[WebSocket] Receive error or timeout: {e}")
-                self.close()
-                return None
-        return None
+        with self.lock:
+            self.connect()
+            if self.ws:
+                try:
+                    # Use default timeout if none specified
+                    actual_timeout = timeout if timeout is not None else self.default_timeout
+                    # Temporarily set the receive timeout
+                    self.ws.settimeout(actual_timeout)
+                    raw = self.ws.recv()  # rosbridge sends JSON as a string
+                    return raw
+                except Exception as e:
+                    print(f"[WebSocket] Receive error or timeout: {e}")
+                    self.close()
+                    return None
+            return None
 
-    def request(self, message: dict, timeout: float = 2.0) -> dict:
+    def request(self, message: dict, timeout: Optional[float] = None) -> dict:
         """
         Send a request to Rosbridge and return the response.
 
         Args:
             message (dict): The Rosbridge message dictionary to send.
-            timeout (float): Seconds to wait for a response. Default = 2.0.
+            timeout (Optional[float]): Seconds to wait for a response.
+                                     If None, uses the default timeout.
 
         Returns:
             dict:
@@ -125,18 +151,29 @@ class WebSocketManager:
             return {"error": "no response or timeout from rosbridge"}
 
         # Attempt to parse JSON
-        try:
-            return json.loads(response)
-        except json.JSONDecodeError as e:
-            print(f"[WebSocket] JSON decode error: {e}")
+        parsed_response = parse_json(response)
+        if parsed_response is None:
+            print(f"[WebSocket] JSON decode error for response: {response}")
             return {"error": "invalid_json", "raw": response}
+        return parsed_response
 
     def close(self):
-        if self.ws and self.ws.connected:
-            try:
-                self.ws.close()
-                print("[WebSocket] Closed")
-            except Exception as e:
-                print(f"[WebSocket] Close error: {e}")
-            finally:
-                self.ws = None
+        with self.lock:
+            if self.ws and self.ws.connected:
+                try:
+                    self.ws.close()
+                    print("[WebSocket] Closed")
+                except Exception as e:
+                    print(f"[WebSocket] Close error: {e}")
+                finally:
+                    self.ws = None
+
+    def __enter__(self):
+        """Context manager entry - automatically connects."""
+        # Don't connect here since we want to maintain the existing pattern
+        # where request() handles connection automatically
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit - automatically closes the connection."""
+        self.close()
