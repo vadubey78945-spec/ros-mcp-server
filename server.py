@@ -7,7 +7,6 @@ from utils.websocket_manager import WebSocketManager
 from utils.network_utils import ping_ip_and_port
 
 # ROS bridge connection settings
-LOCAL_IP = "127.0.0.1"  # Default is localhost. Replace with your local IP or set using the LLM.
 ROSBRIDGE_IP = "127.0.0.1"  # Default is localhost. Replace with your local IPor set using the LLM.
 ROSBRIDGE_PORT = (
     9090  # Rosbridge default is 9090. Replace with your rosbridge port or set using the LLM.
@@ -15,24 +14,23 @@ ROSBRIDGE_PORT = (
 
 # Initialize MCP server and WebSocket manager
 mcp = FastMCP("ros-mcp-server")
-ws_manager = WebSocketManager(ROSBRIDGE_IP, ROSBRIDGE_PORT, LOCAL_IP)
+ws_manager = WebSocketManager(ROSBRIDGE_IP, ROSBRIDGE_PORT)
 
 
 @mcp.tool(description=("Set the IP and port for the WebSocket connection."))
-def set_websocket_ip(ip: str, port: int, local_ip: str) -> dict:
+def set_websocket_ip(ip: str, port: int) -> dict:
     """
     Set the IP and port for the WebSocket connection.
 
     Args:
         ip (str): The IP address of the rosbridge server.
         port (int): The port number of the rosbridge server.
-        local_ip (Optional[str]): Local IP address to bind to, if needed.
 
     Returns:
         dict: Confirmation message with the new settings.
     """
-    ws_manager.set_ip(ip, port, local_ip)
-    return {"message": f"WebSocket IP set to {ip}:{port} (local IP: {local_ip})"}
+    ws_manager.set_ip(ip, port)
+    return {"message": f"WebSocket IP set to {ip}:{port}"}
 
 
 @mcp.tool(description=("Fetch available topics from the ROS bridge.\nExample:\nget_topics()"))
