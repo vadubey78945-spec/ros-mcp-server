@@ -5,8 +5,7 @@
 ![Static Badge](https://img.shields.io/badge/License-Apache%202.0-blue)
 
 <p align="center">
-  <!-- <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/framework.png"/> -->
-  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/MCP_topology.png"/>
+  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/framework.png"/>
 </p>
 
 The **ROS MCP Server** bridges large language models (LLMs) with robot control, allowing users to issue natural language commands that are translated into ROS/ROS2 instructions. It is compatible with any language model that supports MCP, can run with both **ROS** and **ROS2**, and communicatess via WebSocket for cross-platform compatibility. 
@@ -48,6 +47,9 @@ It does not require changes to existing robot code, since it is built on `rosbri
 # Getting Started
 Below are instructions to install and run the MCP server with your robot. The MCP server is agnostic to the version of ROS/ROS2 that you are running and works with any LLM that supports MCP. (Our examples use Claude desktop)
 
+<p align="center">
+  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/MCP_topology.png"/>
+</p>
 
 ## Installation
 
