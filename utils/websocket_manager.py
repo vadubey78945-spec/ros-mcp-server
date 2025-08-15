@@ -1,4 +1,5 @@
 import json
+import threading
 from typing import Optional, Union
 
 import websocket
@@ -29,6 +30,7 @@ class WebSocketManager:
         self.ip = ip
         self.port = port
         self.ws = None
+        self.lock = threading.Lock()
 
     def set_ip(self, ip: str, port: int):
         """
@@ -67,27 +69,28 @@ class WebSocketManager:
             None if successful,
             or an error message string if send failed.
         """
-        conn_error = self.connect()
-        if conn_error:
-            return conn_error  # failed to connect
+        with self.lock:
+            conn_error = self.connect()
+            if conn_error:
+                return conn_error  # failed to connect
 
-        if self.ws:
-            try:
-                json_msg = json.dumps(message)  # ensure it's JSON-serializable
-                self.ws.send(json_msg)
-                return None  # no error
-            except TypeError as e:
-                error_msg = f"[WebSocket] JSON serialization error: {e}"
-                print(error_msg)
-                self.close()
-                return error_msg
-            except Exception as e:
-                error_msg = f"[WebSocket] Send error: {e}"
-                print(error_msg)
-                self.close()
-                return error_msg
+            if self.ws:
+                try:
+                    json_msg = json.dumps(message)  # ensure it's JSON-serializable
+                    self.ws.send(json_msg)
+                    return None  # no error
+                except TypeError as e:
+                    error_msg = f"[WebSocket] JSON serialization error: {e}"
+                    print(error_msg)
+                    self.close()
+                    return error_msg
+                except Exception as e:
+                    error_msg = f"[WebSocket] Send error: {e}"
+                    print(error_msg)
+                    self.close()
+                    return error_msg
 
-        return "[WebSocket] Not connected, send aborted."
+            return "[WebSocket] Not connected, send aborted."
 
     def receive(self, timeout: float = 2.0) -> Optional[Union[str, bytes]]:
         """
@@ -99,18 +102,19 @@ class WebSocketManager:
         Returns:
             Optional[str]: JSON string received from rosbridge, or None if timeout/error.
         """
-        self.connect()
-        if self.ws:
-            try:
-                # Temporarily set the receive timeout
-                self.ws.settimeout(timeout)
-                raw = self.ws.recv()  # rosbridge sends JSON as a string
-                return raw
-            except Exception as e:
-                print(f"[WebSocket] Receive error or timeout: {e}")
-                self.close()
-                return None
-        return None
+        with self.lock:
+            self.connect()
+            if self.ws:
+                try:
+                    # Temporarily set the receive timeout
+                    self.ws.settimeout(timeout)
+                    raw = self.ws.recv()  # rosbridge sends JSON as a string
+                    return raw
+                except Exception as e:
+                    print(f"[WebSocket] Receive error or timeout: {e}")
+                    self.close()
+                    return None
+            return None
 
     def request(self, message: dict, timeout: float = 2.0) -> dict:
         """
@@ -149,11 +153,12 @@ class WebSocketManager:
         return parsed_response
 
     def close(self):
-        if self.ws and self.ws.connected:
-            try:
-                self.ws.close()
-                print("[WebSocket] Closed")
-            except Exception as e:
-                print(f"[WebSocket] Close error: {e}")
-            finally:
-                self.ws = None
+        with self.lock:
+            if self.ws and self.ws.connected:
+                try:
+                    self.ws.close()
+                    print("[WebSocket] Closed")
+                except Exception as e:
+                    print(f"[WebSocket] Close error: {e}")
+                finally:
+                    self.ws = None
