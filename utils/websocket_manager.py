@@ -162,3 +162,13 @@ class WebSocketManager:
                     print(f"[WebSocket] Close error: {e}")
                 finally:
                     self.ws = None
+
+    def __enter__(self):
+        """Context manager entry - automatically connects."""
+        # Don't connect here since we want to maintain the existing pattern
+        # where request() handles connection automatically
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit - automatically closes the connection."""
+        self.close()
