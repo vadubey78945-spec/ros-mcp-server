@@ -4,6 +4,26 @@ from typing import Optional, Union
 import websocket
 
 
+def parse_json(raw: Optional[Union[str, bytes]]) -> Optional[dict]:
+    """
+    Safely parse JSON from string or bytes.
+    
+    Args:
+        raw: JSON string, bytes, or None
+        
+    Returns:
+        Parsed dict if successful, None if raw is None or parsing fails
+    """
+    if raw is None:
+        return None
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8", errors="replace")
+    try:
+        return json.loads(raw)
+    except (json.JSONDecodeError, TypeError):
+        return None
+
+
 class WebSocketManager:
     def __init__(self, ip: str, port: int):
         self.ip = ip
@@ -122,11 +142,11 @@ class WebSocketManager:
             return {"error": "no response or timeout from rosbridge"}
 
         # Attempt to parse JSON
-        try:
-            return json.loads(response)
-        except json.JSONDecodeError as e:
-            print(f"[WebSocket] JSON decode error: {e}")
+        parsed_response = parse_json(response)
+        if parsed_response is None:
+            print(f"[WebSocket] JSON decode error for response: {response}")
             return {"error": "invalid_json", "raw": response}
+        return parsed_response
 
     def close(self):
         if self.ws and self.ws.connected:
