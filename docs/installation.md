@@ -7,7 +7,7 @@ Follow these steps to set up the ROS MCP Server and connect it with a supported 
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/r-johnv/ros-mcp-server.git
+git clone https://github.com/robotmcp/ros-mcp-server.git
 ```
 
 Note the **absolute path** to the cloned directory — you’ll need this later when configuring your language model client.
@@ -34,14 +34,15 @@ pip install uv
 
 This package is required for MCP to interface with ROS or ROS 2 via WebSocket. It needs to be installed on the same machine that is running ROS.
 
-### For ROS 1 (Noetic, Melodic, etc.)
 ```bash
 sudo apt install ros-${ROS_DISTRO}-rosbridge-server
 ```
-
-### For ROS 2 (Foxy, Humble, etc.)
+Examples:
 ```bash
-sudo apt install ros-${ROS_DISTRO}-rosbridge-server
+sudo apt install ros-noetic-rosbridge-server
+```
+```bash
+sudo apt install ros-humble-rosbridge-server
 ```
 
 Test by launching the rosbridge server in your ROS environment:
