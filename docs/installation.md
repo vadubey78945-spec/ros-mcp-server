@@ -125,7 +125,7 @@ Add the following to the `"mcpServers"` section of the JSON file, replacing `<AB
 }
 ```
 ---
-## 6. Confifure IP (Only not running locally)
+## 6. Configure IP (Only not running locally)
 
 - If the MCP server and rosbridge are running on the same machine, skip this step.
 - If rosbridge is on another machine, first test IP at runtime using the MCP servers tool to dynamically set the target IP.
