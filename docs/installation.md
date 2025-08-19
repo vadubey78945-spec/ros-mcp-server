@@ -114,7 +114,7 @@ Add the following to the `"mcpServers"` section of the JSON file, replacing `<AB
       "command": "wsl",
       "args": [
         "-d", "Ubuntu-22.04",
-        "`/home/youruser/.local/bin/uv",
+        "/home/youruser/.local/bin/uv",
         "--directory",
         "/<ABSOLUTE_PATH>/ros-mcp-server",
         "run",
