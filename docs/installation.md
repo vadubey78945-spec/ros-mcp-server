@@ -3,6 +3,7 @@
 Follow these steps to set up the ROS MCP Server and connect it with a supported language model client (e.g., Claude Desktop).
 
 ---
+# On the Host Machine (Where the LLM will be running)
 
 ## 1. Clone the Repository
 
@@ -30,35 +31,7 @@ pip install uv
 
 ---
 
-## 3. Install `rosbridge_server`
-
-This package is required for MCP to interface with ROS or ROS 2 via WebSocket. It needs to be installed on the same machine that is running ROS.
-
-```bash
-sudo apt install ros-${ROS_DISTRO}-rosbridge-server
-```
-Examples:
-```bash
-sudo apt install ros-noetic-rosbridge-server
-```
-```bash
-sudo apt install ros-humble-rosbridge-server
-```
-
-Test by launching the rosbridge server in your ROS environment:
-```bash
-# ROS 1
-roslaunch rosbridge_server rosbridge_websocket.launch
-
-# ROS 2
-ros2 launch rosbridge_server rosbridge_websocket_launch.xml
-```
-
-> ⚠️ Don’t forget to `source` your ROS workspace before launching, especially if you're using custom messages or services.
-
----
-
-## 4. Install a Language Model Client
+## 3. Install a Language Model Client
 
 Any LLM client that supports MCP can be used. We use **Claude Desktop** for testing and development.
 
@@ -67,9 +40,9 @@ Any LLM client that supports MCP can be used. We use **Claude Desktop** for test
 
 ---
 
-## 5. Configure the Language Model Client (Specific to Claude Desktop)
+## 4. Configure the Language Model Client (Specific to Claude Desktop)
 
-Locate and edit the `claude_desktop_config.json` file:
+### Locate and edit the `claude_desktop_config.json` file:
 
 - **MacOS**
 ```bash
@@ -86,7 +59,8 @@ code ~/.config/Claude/claude_desktop_config.json
 code $env:AppData\Claude\claude_desktop_config.json
 ```
 
-Add the following to the `"mcpServers"` section of the JSON file, replacing `<ABSOLUTE_PATH>` with the path to your `ros-mcp-server` folder:
+### Add the following to the `"mcpServers"` section of the JSON file
+Make sure to replace `<ABSOLUTE_PATH>` with the path to your `ros-mcp-server` folder:
 
 ```json
 {
@@ -104,9 +78,11 @@ Add the following to the `"mcpServers"` section of the JSON file, replacing `<AB
 }
 ```
 
-> ✅ **Tip:** This configuration also works on **Windows using WSL**, with Claude on Windows and the server on WSL. Make sure to: 
-> - Set the **full WSL path** to your `uv` installation (e.g., `/home/youruser/.local/bin/uv`)
-> - Use the correct **WSL distribution name** (e.g., `"Ubuntu-22.04"`)
+✅ **Tip:** If on Windows, using [WSL](https://apps.microsoft.com/detail/9pn20msr04dw?hl=en-US&gl=US) is also a strong option - with Claude running on Windows and the MCP server running on WSL. 
+
+Use the below configuration for this, making sure to: 
+- Set the **full WSL path** to your `uv` installation (e.g., `/home/youruser/.local/bin/uv`)
+- Use the correct **WSL distribution name** (e.g., `"Ubuntu-22.04"`)
 ```json
 {
   "mcpServers": {
@@ -125,19 +101,42 @@ Add the following to the `"mcpServers"` section of the JSON file, replacing `<AB
 }
 ```
 ---
-## 6. Configure IP (Only not running locally)
+## 5. Test that the Host (Claude) can connect to the MCP server
 
-- If the MCP server and rosbridge are running on the same machine, skip this step.
-- If rosbridge is on another machine, first test IP at runtime using the MCP servers tool to dynamically set the target IP.
+- Launch your host and check connection status. 
+- Below is an image of what that looks like in Claude. The ros-mcp-server should be visible in your list of tools.
 
-Example:
-```plaintext
-My IP is 100.xx.xx.xx. Connect the ROS MCP server to 100.xx.xx.xx port 9090.
+<p align="center">
+  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/connected_mcp.png"/>
+</p>
+---
+
+# On the Target Robot (Where ROS will be running)
+
+## 1. Install `rosbridge_server`
+
+This package is required for MCP to interface with ROS or ROS 2 via WebSocket. It needs to be installed on the same machine that is running ROS.
+
+```bash
+sudo apt install ros-${ROS_DISTRO}-rosbridge-server
+```
+Examples:
+```bash
+sudo apt install ros-noetic-rosbridge-server
+```
+```bash
+sudo apt install ros-humble-rosbridge-server
 ```
 
-You can then edit `server.py` and update the following default values to have the server connected to the right IP at launch:
+## Test rosbridge server by launching in your ROS environment:
+```bash
+# ROS 1
+roslaunch rosbridge_server rosbridge_websocket.launch
 
-- `LOCAL_IP` (default: `'localhost'`)
-- `ROSBRIDGE_IP` (default: `'localhost'`)
-- `ROSBRIDGE_PORT` (default: `9090`)
+# ROS 2
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+```
+
+> ⚠️ Don’t forget to `source` your ROS workspace before launching, especially if you're using custom messages or services.
+
 ---
