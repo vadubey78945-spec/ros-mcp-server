@@ -107,7 +107,7 @@ Use the below configuration for this, making sure to:
 - Below is an image of what that looks like in Claude. The ros-mcp-server should be visible in your list of tools.
 
 <p align="center">
-  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/connected_mcp.png"/>
+  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/connected_mcp.png" width="500"/>
 </p>
 ---
 
