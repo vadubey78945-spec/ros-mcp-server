@@ -1,4 +1,4 @@
-# ROS MCP Server
+# ROS MCP Server 🧠⇄🤖
 
 ![Static Badge](https://img.shields.io/badge/ROS-Available-green)
 ![Static Badge](https://img.shields.io/badge/ROS2-Available-green)
@@ -23,15 +23,13 @@ It does not require changes to existing robot code, since it is built on `rosbri
 ---
 ## Supported ROS Commands
 
-- **View all running ROS topics and types**
-- **View message type details**, including custom messages — no code changes needed
-- **Publish and subscribe to any topic**, including custom message types
-- **View all active publishers, subscribers, and nodes**
-- **View all running ROS services**
-- **Call any ROS service**, including custom service types
-- **Get and set ROS parameters**
-- *(Coming soon)*: Full ROS Action support
-- *(Coming soon)*: Permission management to restrict write access to selected topics and services
+- List topics, services, and types
+- View message type details (incl. custom)
+- Publish/subscribe to any topic (incl. custom)
+- Call any service (incl. custom)
+- Get/set parameters
+- (Coming soon): Full Action support
+- (Coming soon): Permission controls for write access
 
 ---
 # Examples in action:
