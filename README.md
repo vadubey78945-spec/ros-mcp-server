@@ -21,7 +21,7 @@ It does not require changes to existing robot code, since it is built on `rosbri
 - **No ROS node modification required**: Fully interoperable with existing systems
 
 ---
-## Supported ROS Commands
+## Features
 
 - List topics, services, and types
 - View message type details (incl. custom)
