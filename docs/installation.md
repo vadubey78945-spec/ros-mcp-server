@@ -56,7 +56,7 @@ Any LLM client that supports MCP can be used. We use **Claude Desktop** for test
 - Locate and edit the `claude_desktop_config.json` file:
 - (If the file does not exist, create it)
 ```bash
-code ~/.config/Claude/claude_desktop_config.json
+~/.config/Claude/claude_desktop_config.json
 ```
 
 - Add the following to the `"mcpServers"` section of the JSON file
@@ -87,7 +87,7 @@ code ~/.config/Claude/claude_desktop_config.json
 - Locate and edit the `claude_desktop_config.json` file:
 - (If the file does not exist, create it)
 ```bash
-code ~/Library/Application\ Support/Claude/claude_desktop_config.json
+~/Library/Application\ Support/Claude/claude_desktop_config.json
 ```
 
 - Add the following to the `"mcpServers"` section of the JSON file
@@ -122,7 +122,7 @@ This will have Claude running on Windows and the MCP server running on WSL.
 - Locate and edit the `claude_desktop_config.json` file:
 - (If the file does not exist, create it)
 ```bash
-code ~/.config/Claude/claude_desktop_config.json
+~/.config/Claude/claude_desktop_config.json
 ```
 
 - Add the following to the `"mcpServers"` section of the JSON file
