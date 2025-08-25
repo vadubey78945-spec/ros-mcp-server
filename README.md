@@ -45,82 +45,28 @@ It does not require changes to existing robot code, since it is built on `rosbri
 ---
 
 # Getting Started
-Below are instructions to install and run the MCP server with your robot. The MCP server is agnostic to the version of ROS/ROS2 that you are running and works with any LLM that supports MCP. (Our examples use Claude desktop)
+Below are instructions to install and run the MCP server with your robot. The MCP server is agnostic to the version of ROS/ROS2 that you are running and works with any LLM that supports MCP. 
+
+Our examples use Claude desktop as the LLM client, but any client that supports the MCP protocol can be used!
 
 <p align="center">
   <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/MCP_topology.png"/>
 </p>
 
-## Installation
+## Installation and Use
 
 Follow the [installation guide](docs/installation.md) for full setup instructions on:
 - Cloning the ROS-MCP-server repository
 - Installing `uv` and `rosbridge`
 - Installing `Claude desktop`
 - Configuring Claude to connect to the ROS-MCP-server.
-
----
-
-## Usage
-This section walks you through launching rosbridge, connecting to your AI system, and issuing your first natural language command.
-### 1. Launch rosbridge server
-Execute the below command on the same machine that is running your ROS processes. Source your ROS workspace first in order to have the MCP server access custom message and service types. 
-#### ROS 1:
-```bash
-roslaunch rosbridge_server rosbridge_websocket.launch
-```
-
-#### ROS 2:
-```bash
-ros2 launch rosbridge_server rosbridge_websocket_launch.xml
-```
-
----
-
-### 2. Run any AI system with the `ros-mcp-server` installed
-
-This could be your LLM wrapper, chatbot, or any custom client. We’ve used Claude Desktop (an LLM interface) for the examples shown below, but any AI system that supports MCP will work.
+- Installing and starting rosbridge on the target robot
 
 ---
 
 
-### 3. You're ready to go!
-You can test out your server with any robot that you have running.
-
-✅ **Tip:** If you don't currently have any robots running, turtlesim is the easiest ROS robot to experiment. It does not have any simulation depenencies such as Gazebo or IsaacSim. You can launch turtlesim in ROS with the below command
-```
-rosrun turtlesim turtlesim_node
-
-```
-You can spawn additional turtles with
-```
-rosservice call /spawn 5.0 5.0 0.0 "turtle2"
-```
-
-## Example Commands
-
-### - Natural language commands
-
-Example:
-```plaintext
-Make the robot move forward.
-```
-
-<p align="center">
-  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/how_to_use_1.png" width="500"/>
-</p>
-
----
-
-### - Query your ROS system
-Example:  
-```plaintext
-Do you see any current velocity commands to the robot?
-```
-<p align="center">
-  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/how_to_use_3.png" />
-</p>
-
+## More Examples and Tutorials
+Look into our [list of examples](docs/examples.md) for inspiration and tutorials of the ROS-MCP server in use. Feel free to submit PRs adding examples that you have successfully implemented!
 
 ## Contributing
 

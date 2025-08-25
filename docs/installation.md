@@ -186,3 +186,38 @@ ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 > ⚠️ Don’t forget to `source` your ROS workspace before launching, especially if you're using custom messages or services.
 
 ---
+
+
+# 5. You're ready to go!
+You can test out your server with any robot that you have running. Just tell your AI to connect to the robot on its target IP. (Default is localhost, so you don't need to tell it to connect if the MCP server is installed on the same machine as your ROS)
+
+✅ **Tip:** If you don't currently have any robots running, turtlesim is the easiest ROS robot to experiment. It does not have any simulation depenencies such as Gazebo or IsaacSim. You can launch turtlesim in ROS with the below command
+```
+rosrun turtlesim turtlesim_node
+
+```
+
+
+## Example Commands
+
+### - Natural language commands
+
+Example:
+```plaintext
+Make the robot move forward.
+```
+
+<p align="center">
+  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/how_to_use_1.png" width="500"/>
+</p>
+
+---
+
+### - Query your ROS system
+Example:  
+```plaintext
+What topics and services do you see on the robot?
+```
+<p align="center">
+  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/how_to_use_3.png" />
+</p>
