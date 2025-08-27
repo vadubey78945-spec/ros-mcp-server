@@ -3,4 +3,166 @@ This is an example using the simplest possible 'robot' in the ROS ecosystem: Tur
 
 Turtlesim is a lightweight simulator for learning ROS / ROS 2. It illustrates what ROS does at the most basic level to give you an idea of what you will do with a real robot or a robot simulation later on.
 
-To make things simple, this example includes a docker container with ROS 2 and turtlesim preinstalled to enable you to jump straight into testing the MCP server without needing to learn the dependencies of ROS. 
+To make things simple, this example includes a docker container with ROS 2 and turtlesim preinstalled to enable you to jump straight into testing the MCP server without needing to learn the dependencies of ROS.
+
+## Prerequisites
+
+Before starting this tutorial, make sure you have the following installed:
+
+- **Docker**: [Install Docker](https://docs.docker.com/get-docker/)
+- **Docker Compose**: Usually comes with Docker Desktop, or install separately
+- **X11 forwarding** (for Linux): `sudo apt-get install x11-apps`
+- **XQuartz** (for macOS): Install from [XQuartz website](https://www.xquartz.org/)
+
+## Quick Start
+
+### 1. Build and Launch the Container
+
+Navigate to the turtlesim example directory and build the Docker container:
+
+```bash
+cd examples/turtlesim
+docker compose build
+```
+
+### 2. Start the Container
+
+Launch the turtlesim container:
+
+```bash
+docker-compose up -d
+```
+
+The container will automatically start both turtlesim and rosbridge websocket server. You should see:
+
+- A turtlesim window appear with a turtle
+- ROS Bridge WebSocket server running on `ws://localhost:9090`
+- Turtle teleop ready for keyboard input
+
+### 3. Access the Container (Optional)
+
+If you need to access the container for debugging or additional commands:
+
+```bash
+docker exec -it ros2-turtlesim bash
+```
+
+Once inside the container, you can manually launch turtle teleop to control the turtle:
+
+```bash
+source /opt/ros/humble/setup.bash
+ros2 run turtlesim turtle_teleop_key
+```
+
+This will allow you to use arrow keys or WASD to manually move the turtle around the turtlesim window.
+
+## Integration with MCP Server
+
+Once turtlesim and rosbridge are running, you can connect the MCP server to control the turtle programmatically
+
+Since it is running on the same machine, you can tell the LLM to connect to the robot on localhost. 
+
+
+## Troubleshooting
+
+### Display Issues (Linux)
+
+If you encounter display issues on Linux, run:
+
+```bash
+xhost +local:docker
+```
+
+### Display Issues (macOS)
+
+For macOS users, make sure XQuartz is running and configured:
+
+```bash
+# Start XQuartz
+open -a XQuartz
+
+# Allow connections from localhost
+xhost +localhost
+```
+
+### Container Networking
+
+If you need to access the container from outside, the container uses host networking mode, so ROS2 topics should be accessible on localhost.
+
+### Manual Launch (Alternative)
+
+If the automatic launch isn't working or you prefer to launch turtlesim manually, you can run these commands inside the container:
+
+```bash
+# Access the container
+docker exec -it ros2-turtlesim bash
+
+# Source ROS2 environment
+source /opt/ros/humble/setup.bash
+
+# Start turtlesim in one terminal
+ros2 run turtlesim turtlesim_node
+
+# In another terminal, start the teleop node
+ros2 run turtlesim turtle_teleop_key
+```
+
+### Testing Turtlesim
+
+If you need to verify that turtlesim is working correctly:
+
+#### ROS2 Topic Inspection
+
+In a separate terminal, you can inspect the ROS2 topics:
+
+```bash
+# Access the container
+docker exec -it ros2-turtlesim bash
+
+# Source ROS2 environment
+source /opt/ros/humble/setup.bash
+
+# List all topics
+ros2 topic list
+
+# Echo turtle position
+ros2 topic echo /turtle1/pose
+
+# Echo turtle velocity commands
+ros2 topic echo /turtle1/cmd_vel
+```
+
+#### ROS Bridge WebSocket Server
+
+The rosbridge websocket server is automatically started and available at `ws://localhost:9090`. You can test the connection using a WebSocket client or the MCP server.
+
+To verify rosbridge is running, you can check the container logs:
+
+```bash
+docker logs ros2-turtlesim
+```
+
+## Cleanup
+
+To stop and remove the container:
+
+```bash
+docker-compose down
+```
+
+To remove the built image:
+
+```bash
+docker rmi ros-mcp-server_turtlesim
+```
+
+## Next Steps
+
+Now that you have turtlesim running, you can:
+
+
+1. **Try more complex commands** like drawing shapes or following paths
+2. **Install ROS Locally** to add more nodes and services
+3. **Explore other examples in this repository**
+
+This example provides a foundation for understanding how the MCP server can interact with ROS2 systems, from simple simulators like turtlesim to complex robotic platforms. 
