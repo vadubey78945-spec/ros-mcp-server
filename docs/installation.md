@@ -153,7 +153,7 @@ This will have Claude running on Windows and the MCP server running on WSL.
 - Below is an image of what that looks like in Claude. The ros-mcp-server should be visible in your list of tools.
 
 <p align="center">
-  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/connected_mcp.png" width="500"/>
+  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/connected_mcp.png" width="500"/>
 </p>
 ---
 
@@ -208,7 +208,7 @@ Make the robot move forward.
 ```
 
 <p align="center">
-  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/how_to_use_1.png" width="500"/>
+  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/how_to_use_1.png" width="500"/>
 </p>
 
 ---
@@ -219,5 +219,5 @@ Example:
 What topics and services do you see on the robot?
 ```
 <p align="center">
-  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/img/how_to_use_3.png" />
+  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/how_to_use_3.png" />
 </p>
