@@ -1,8 +1,9 @@
 import json
 import time
+import os
 from typing import Optional
 
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 from utils.websocket_manager import WebSocketManager, parse_json
 from utils.network_utils import ping_ip_and_port
@@ -47,7 +48,7 @@ def connect_to_robot(
     ws_manager.set_ip(actual_ip, actual_port)
 
     # Test connectivity
-    ping_result = ping_robot(actual_ip, actual_port, ping_timeout, port_timeout)
+    ping_result = ping_ip_and_port(actual_ip, actual_port, ping_timeout, port_timeout)
 
     # Combine the results
     return {
@@ -1082,4 +1083,8 @@ def ping_robot(ip: str, port: int, ping_timeout: float = 2.0, port_timeout: floa
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    transport = os.getenv("MCP_TRANSPORT", "stdio")  # "stdio" or "http"
+    if transport == "http":
+        mcp.run(transport=transport)
+    else:
+        mcp.run(transport="stdio")
