@@ -28,27 +28,33 @@ Note the **absolute path** to the cloned directory — you’ll need this later 
 
 You can install [`uv`](https://github.com/astral-sh/uv) using one of the following methods:
 
-### Option A: Shell installer
+<details>
+<summary><strong>Option A: Shell installer</strong></summary>
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-### Option B: Using pip
+</details>
+
+<details>
+<summary><strong>Option B: Using pip</strong></summary>
+
 ```bash
 pip install uv
 ```
+
+</details>
 
 ---
 
 # 2. Install and configure a Language Model Client 
 
-Any LLM client that supports MCP can be used. We use **Claude Desktop** for testing and development. This section has instructions for:
-- Linux (Ubuntu)
-- Windows (using WSL)
-- MacOS
+Any LLM client that supports MCP can be used. We use **Claude Desktop** for testing and development.
 
+<details>
+<summary><strong>Linux (Ubuntu)</strong></summary>
 
-## 2a. Linux (Ubuntu)
 ### Download Claude 
 - From the community-supported [claude-desktop-debian](https://github.com/aaddrick/claude-desktop-debian)
 
@@ -78,8 +84,11 @@ Any LLM client that supports MCP can be used. We use **Claude Desktop** for test
 }
 ```
 
----
-## 2b. MacOS
+</details>
+
+<details>
+<summary><strong>MacOS</strong></summary>
+
 ### Download Claude 
 - From [claude.ai](https://claude.ai/download)
 
@@ -109,11 +118,14 @@ Any LLM client that supports MCP can be used. We use **Claude Desktop** for test
 }
 ```
 
-## 2c. Windows (Using WSL)
+</details>
+
+<details>
+<summary><strong>Windows (Using WSL)</strong></summary>
+
 This will have Claude running on Windows and the MCP server running on WSL.
 
-### Install WSL (Windows Subsystem for Linux)
-- [Downlowd WSL](https://apps.microsoft.com/detail/9pn20msr04dw?hl=en-US&gl=US) 
+This assumes that you had cloned the repository and installed UV on your [WSL](https://apps.microsoft.com/detail/9pn20msr04dw?hl=en-US&gl=US) 
 
 ### Download your client - Claude 
 - From [claude.ai](https://claude.ai/download)
@@ -129,6 +141,7 @@ This will have Claude running on Windows and the MCP server running on WSL.
 - Make sure to replace `<ABSOLUTE_PATH>` with the path to your `ros-mcp-server` folder:
 - Set the **full WSL path** to your `uv` installation (e.g., `/home/youruser/.local/bin/uv`)
 - Use the correct **WSL distribution name** (e.g., `"Ubuntu-22.04"`)
+
 ```json
 {
   "mcpServers": {
@@ -147,6 +160,9 @@ This will have Claude running on Windows and the MCP server running on WSL.
 }
 ```
 
+</details>
+
+
 # 3. Test that the Client (Claude) can connect to the MCP server
 
 - Launch your host and check connection status. 
@@ -158,32 +174,74 @@ This will have Claude running on Windows and the MCP server running on WSL.
 ---
 
 # 4. Install and run rosbridge (On the target robot Where ROS will be running)
+<details>
+<summary><strong>ROS 1</strong></summary>
 
-## 3.1. Install `rosbridge_server`
+## 4.1. Install `rosbridge_server`
 
 This package is required for MCP to interface with ROS or ROS 2 via WebSocket. It needs to be installed on the same machine that is running ROS.
+
+
+For ROS Noetic
+```bash
+sudo apt install ros-noetic-rosbridge-server
+```
+<details>
+<summary>For other ROS Distros</summary>
 
 ```bash
 sudo apt install ros-${ROS_DISTRO}-rosbridge-server
 ```
-Examples:
-```bash
-sudo apt install ros-noetic-rosbridge-server
-```
+</details>
+
 ```bash
 sudo apt install ros-humble-rosbridge-server
 ```
 
-## 3.2. Launch rosbridge in your ROS environment:
-```bash
-# ROS 1
-roslaunch rosbridge_server rosbridge_websocket.launch
 
-# ROS 2
+
+## 3.2. Launch rosbridge in your ROS environment:
+
+
+```bash
+roslaunch rosbridge_server rosbridge_websocket.launch
+```
+> ⚠️ Don’t forget to `source` your ROS workspace before launching, especially if you're using custom messages or services.
+
+</details>
+
+<details>
+<summary><strong>ROS 2</strong></summary>
+
+
+## 4.1. Install `rosbridge_server`
+
+This package is required for MCP to interface with ROS or ROS 2 via WebSocket. It needs to be installed on the same machine that is running ROS.
+
+
+For ROS 2 Humble
+```bash
+sudo apt install ros-humble-rosbridge-server
+```
+<details>
+<summary>For other ROS Distros</summary>
+
+```bash
+sudo apt install ros-${ROS_DISTRO}-rosbridge-server
+```
+</details>
+
+
+## 3.2. Launch rosbridge in your ROS environment:
+
+
+```bash
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 ```
-
 > ⚠️ Don’t forget to `source` your ROS workspace before launching, especially if you're using custom messages or services.
+
+</details>
+
 
 ---
 
