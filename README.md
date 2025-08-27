@@ -64,7 +64,7 @@ Follow the [installation guide](docs/installation.md) for full setup instruction
 
 
 ## More Examples and Tutorials
-Look into our [list of examples](docs/examples.md) for inspiration and tutorials of the ROS-MCP server in use. Feel free to submit PRs adding examples that you have successfully implemented!
+Look into our [list of examples](examples/examples-index.md) for inspiration and tutorials of the ROS-MCP server in use. Feel free to submit PRs adding examples that you have successfully implemented!
 
 ## Contributing
 

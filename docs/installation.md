@@ -28,31 +28,37 @@ Note the **absolute path** to the cloned directory — you’ll need this later 
 
 You can install [`uv`](https://github.com/astral-sh/uv) using one of the following methods:
 
-### Option A: Shell installer
+<details>
+<summary><strong>Option A: Shell installer</strong></summary>
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-### Option B: Using pip
+</details>
+
+<details>
+<summary><strong>Option B: Using pip</strong></summary>
+
 ```bash
 pip install uv
 ```
+
+</details>
 
 ---
 
 # 2. Install and configure a Language Model Client 
 
-Any LLM client that supports MCP can be used. We use **Claude Desktop** for testing and development. This section has instructions for:
-- Linux (Ubuntu)
-- Windows (using WSL)
-- MacOS
+Any LLM client that supports MCP can be used. We use **Claude Desktop** for testing and development.
 
+<details>
+<summary><strong>Linux (Ubuntu)</strong></summary>
 
-## 2a. Linux (Ubuntu)
-### Download Claude 
-- From the community-supported [claude-desktop-debian](https://github.com/aaddrick/claude-desktop-debian)
+## 2.1. Download Claude Desktop 
+- Download from the community-supported [claude-desktop-debian](https://github.com/aaddrick/claude-desktop-debian)
 
-### Configure the client to launch the MCP server
+## 2.2. Configure Claude Desktop to launch the MCP server
 - Locate and edit the `claude_desktop_config.json` file:
 - (If the file does not exist, create it)
 ```bash
@@ -78,12 +84,23 @@ Any LLM client that supports MCP can be used. We use **Claude Desktop** for test
 }
 ```
 
----
-## 2b. MacOS
-### Download Claude 
-- From [claude.ai](https://claude.ai/download)
+## 2.3. Test the connection
+- Launch Claude Desktop and check connection status. 
+- The ros-mcp-server should be visible in your list of tools.
 
-### Configure the Host to launch the MCP server
+<p align="center">
+  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/connected_mcp.png" width="500"/>
+</p>
+
+</details>
+
+<details>
+<summary><strong>MacOS</strong></summary>
+
+## 2.1. Download Claude Desktop 
+- Download from [claude.ai](https://claude.ai/download)
+
+## 2.2. Configure Claude Desktop to launch the MCP server
 - Locate and edit the `claude_desktop_config.json` file:
 - (If the file does not exist, create it)
 ```bash
@@ -109,16 +126,26 @@ Any LLM client that supports MCP can be used. We use **Claude Desktop** for test
 }
 ```
 
-## 2c. Windows (Using WSL)
-This will have Claude running on Windows and the MCP server running on WSL.
+## 2.3. Test the connection
+- Launch Claude Desktop and check connection status. 
+- The ros-mcp-server should be visible in your list of tools.
 
-### Install WSL (Windows Subsystem for Linux)
-- [Downlowd WSL](https://apps.microsoft.com/detail/9pn20msr04dw?hl=en-US&gl=US) 
+<p align="center">
+  <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/connected_mcp.png" width="500"/>
+</p>
 
-### Download your client - Claude 
-- From [claude.ai](https://claude.ai/download)
+</details>
 
-### Configure the client to launch the MCP server
+<details>
+<summary><strong>Windows (Using WSL)</strong></summary>
+
+
+## 2.1. Download Claude Desktop 
+This will have Claude running on Windows and the MCP server running on WSL. We assume that you had cloned the repository and installed UV on your [WSL](https://apps.microsoft.com/detail/9pn20msr04dw?hl=en-US&gl=US) 
+
+- Download from [claude.ai](https://claude.ai/download)
+
+## 2.2. Configure Claude Desktop to launch the MCP server
 - Locate and edit the `claude_desktop_config.json` file:
 - (If the file does not exist, create it)
 ```bash
@@ -129,6 +156,7 @@ This will have Claude running on Windows and the MCP server running on WSL.
 - Make sure to replace `<ABSOLUTE_PATH>` with the path to your `ros-mcp-server` folder:
 - Set the **full WSL path** to your `uv` installation (e.g., `/home/youruser/.local/bin/uv`)
 - Use the correct **WSL distribution name** (e.g., `"Ubuntu-22.04"`)
+
 ```json
 {
   "mcpServers": {
@@ -147,48 +175,91 @@ This will have Claude running on Windows and the MCP server running on WSL.
 }
 ```
 
-# 3. Test that the Client (Claude) can connect to the MCP server
-
-- Launch your host and check connection status. 
-- Below is an image of what that looks like in Claude. The ros-mcp-server should be visible in your list of tools.
+## 2.3. Test the connection
+- Launch Claude Desktop and check connection status. 
+- The ros-mcp-server should be visible in your list of tools.
 
 <p align="center">
   <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/connected_mcp.png" width="500"/>
 </p>
+
+</details>
 ---
 
-# 4. Install and run rosbridge (On the target robot Where ROS will be running)
+# 3. Install and run rosbridge (On the target robot where ROS will be running)
+<details>
+<summary><strong>ROS 1</strong></summary>
 
-## 3.1. Install `rosbridge_server`
+## 4.1. Install `rosbridge_server`
 
 This package is required for MCP to interface with ROS or ROS 2 via WebSocket. It needs to be installed on the same machine that is running ROS.
+
+
+For ROS Noetic
+```bash
+sudo apt install ros-noetic-rosbridge-server
+```
+<details>
+<summary>For other ROS Distros</summary>
 
 ```bash
 sudo apt install ros-${ROS_DISTRO}-rosbridge-server
 ```
-Examples:
-```bash
-sudo apt install ros-noetic-rosbridge-server
-```
+</details>
+
 ```bash
 sudo apt install ros-humble-rosbridge-server
 ```
 
-## 3.2. Launch rosbridge in your ROS environment:
-```bash
-# ROS 1
-roslaunch rosbridge_server rosbridge_websocket.launch
 
-# ROS 2
+
+## 3.2. Launch rosbridge in your ROS environment:
+
+
+```bash
+roslaunch rosbridge_server rosbridge_websocket.launch
+```
+> ⚠️ Don’t forget to `source` your ROS workspace before launching, especially if you're using custom messages or services.
+
+</details>
+
+<details>
+<summary><strong>ROS 2</strong></summary>
+
+
+## 4.1. Install `rosbridge_server`
+
+This package is required for MCP to interface with ROS or ROS 2 via WebSocket. It needs to be installed on the same machine that is running ROS.
+
+
+For ROS 2 Humble
+```bash
+sudo apt install ros-humble-rosbridge-server
+```
+<details>
+<summary>For other ROS Distros</summary>
+
+```bash
+sudo apt install ros-${ROS_DISTRO}-rosbridge-server
+```
+</details>
+
+
+## 3.2. Launch rosbridge in your ROS environment:
+
+
+```bash
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 ```
-
 > ⚠️ Don’t forget to `source` your ROS workspace before launching, especially if you're using custom messages or services.
+
+</details>
+
 
 ---
 
 
-# 5. You're ready to go!
+# 4. You're ready to go!
 You can test out your server with any robot that you have running. Just tell your AI to connect to the robot on its target IP. (Default is localhost, so you don't need to tell it to connect if the MCP server is installed on the same machine as your ROS)
 
 ✅ **Tip:** If you don't currently have any robots running, turtlesim is the easiest ROS robot to experiment. It does not have any simulation depenencies such as Gazebo or IsaacSim. You can launch turtlesim in ROS with the below command
@@ -197,10 +268,10 @@ rosrun turtlesim turtlesim_node
 
 ```
 
+<details>
+<summary><strong>Example Commands</strong></summary>
 
-## Example Commands
-
-### - Natural language commands
+### Natural language commands
 
 Example:
 ```plaintext
@@ -211,9 +282,7 @@ Make the robot move forward.
   <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/how_to_use_1.png" width="500"/>
 </p>
 
----
-
-### - Query your ROS system
+### Query your ROS system
 Example:  
 ```plaintext
 What topics and services do you see on the robot?
@@ -221,3 +290,5 @@ What topics and services do you see on the robot?
 <p align="center">
   <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/how_to_use_3.png" />
 </p>
+
+</details>

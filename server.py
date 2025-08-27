@@ -21,7 +21,12 @@ ws_manager = WebSocketManager(
 
 
 @mcp.tool(description=("Connect to a robot by setting IP/port and testing connectivity."))
-def connect_to_robot(ip: Optional[str] = None, port: Optional[int] = None, ping_timeout: float = 2.0, port_timeout: float = 2.0) -> dict:
+def connect_to_robot(
+    ip: Optional[str] = None,
+    port: Optional[int] = None,
+    ping_timeout: float = 2.0,
+    port_timeout: float = 2.0,
+) -> dict:
     """
     Connect to a robot by setting the IP and port for the WebSocket connection, then testing connectivity.
 
@@ -37,17 +42,17 @@ def connect_to_robot(ip: Optional[str] = None, port: Optional[int] = None, ping_
     # Set default values if None
     actual_ip = ip if ip is not None else "127.0.0.1"
     actual_port = port if port is not None else 9090
-    
+
     # Set the IP and port
     ws_manager.set_ip(actual_ip, actual_port)
-    
+
     # Test connectivity
     ping_result = ping_robot(actual_ip, actual_port, ping_timeout, port_timeout)
-    
+
     # Combine the results
     return {
         "message": f"WebSocket IP set to {actual_ip}:{actual_port}",
-        "connectivity_test": ping_result
+        "connectivity_test": ping_result,
     }
 
 
