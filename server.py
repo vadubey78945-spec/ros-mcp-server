@@ -5,8 +5,11 @@ from typing import Optional
 
 from fastmcp import FastMCP
 
-from utils.websocket_manager import WebSocketManager, parse_json
+from utils.websocket_manager import WebSocketManager, parse_json, parse_image
 from utils.network_utils import ping_ip_and_port
+
+from fastmcp.utilities.types import Image
+from PIL import Image as PILImage
 
 # ROS bridge connection settings
 ROSBRIDGE_IP = "127.0.0.1"  # Default is localhost. Replace with your local IPor set using the LLM.
@@ -377,7 +380,11 @@ def subscribe_once(
             if response is None:
                 continue  # idle timeout: no frame this tick
 
-            msg_data = parse_json(response)
+            if "Image" in msg_type:
+                msg_data = parse_image(response)
+            else:
+                msg_data = parse_json(response)
+
             if not msg_data:
                 continue  # non-JSON or empty
 
@@ -1080,6 +1087,31 @@ def ping_robot(ip: str, port: int, ping_timeout: float = 2.0, port_timeout: floa
         dict: Contains ping and port check results with detailed status information.
     """
     return ping_ip_and_port(ip, port, ping_timeout, port_timeout)
+
+
+## ############################################################################################## ##
+##
+##                      IMAGE ANALYSIS
+##
+## ############################################################################################## ##
+@mcp.tool()
+def analyze_image():
+    """
+    Analyze the received image and extract relevant features.
+    """
+    image = PILImage.open("./camera/received_image.png")
+    return _encode_image(image)
+
+def _encode_image(image):
+    """
+    Encodes a PIL Image to a format compatible with ImageContent.
+    """
+    import io
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")
+    img_bytes = buffer.getvalue()
+    img_obj = Image(data=img_bytes, format="png")
+    return img_obj.to_image_content()
 
 
 if __name__ == "__main__":
