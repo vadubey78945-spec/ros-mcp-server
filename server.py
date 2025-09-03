@@ -1103,11 +1103,17 @@ def analyze_image():
     Analyze the received image and extract relevant features.
     """
     image = PILImage.open("./camera/received_image.png")
-    return _encode_image(image)
+    return _encode_image_to_imagecontent(image)
 
-def _encode_image(image):
+def _encode_image_to_imagecontent(image):
     """
     Encodes a PIL Image to a format compatible with ImageContent.
+
+    Args:
+        image (PIL.Image.Image): The image to encode.
+
+    Returns:
+        ImageContent: PNG-encoded image wrapped in an ImageContent object.
     """
     import io
     buffer = io.BytesIO()
@@ -1115,7 +1121,6 @@ def _encode_image(image):
     img_bytes = buffer.getvalue()
     img_obj = Image(data=img_bytes, format="png")
     return img_obj.to_image_content()
-
 
 if __name__ == "__main__":
     transport = os.getenv("MCP_TRANSPORT", "stdio")  # "stdio" or "http"
