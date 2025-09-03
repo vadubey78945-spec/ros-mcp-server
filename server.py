@@ -397,7 +397,10 @@ def subscribe_once(
                 # Unsubscribe before returning the message
                 unsubscribe_msg = {"op": "unsubscribe", "topic": topic}
                 ws_manager.send(unsubscribe_msg)
-                return {"msg": msg_data.get("msg", {})}
+                if "Image" in msg_type:
+                    return {"Image received successfully."}
+                else:
+                    return {"msg": msg_data.get("msg", {})}
 
         # Timeout - unsubscribe and return error
         unsubscribe_msg = {"op": "unsubscribe", "topic": topic}
