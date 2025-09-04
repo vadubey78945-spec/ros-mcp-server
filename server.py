@@ -398,7 +398,7 @@ def subscribe_once(
                 unsubscribe_msg = {"op": "unsubscribe", "topic": topic}
                 ws_manager.send(unsubscribe_msg)
                 if "Image" in msg_type:
-                    return {"Image received successfully."}
+                    return {"message": "Image received successfully and saved in the MCP server. Run the 'analyze_image' tool to analyze it"}
                 else:
                     return {"msg": msg_data.get("msg", {})}
 
