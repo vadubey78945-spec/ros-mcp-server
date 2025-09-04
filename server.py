@@ -1098,12 +1098,20 @@ def ping_robot(ip: str, port: int, ping_timeout: float = 2.0, port_timeout: floa
 ##
 ## ############################################################################################## ##
 @mcp.tool()
-def analyze_image():
+def analyze_previously_received_image():
     """
-    Analyze the received image and extract relevant features.
+    Analyze the received image.
+
+    This tool loads the previously saved image from './camera/received_image.png'
+    (which must have been created by 'parse_image' or 'subscribe_once'), and converts
+    it into an MCP-compatible ImageContent format so that the LLM can interpret it.
     """
-    image = PILImage.open("./camera/received_image.png")
+    path = "./camera/received_image.png"
+    if not os.path.exists(path):
+        return {"error": "No previously received image found at ./camera/received_image.png"}
+    image = PILImage.open(path)
     return _encode_image_to_imagecontent(image)
+
 
 def _encode_image_to_imagecontent(image):
     """
