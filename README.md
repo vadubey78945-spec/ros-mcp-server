@@ -3,78 +3,111 @@
 ![Static Badge](https://img.shields.io/badge/ROS-Available-green)
 ![Static Badge](https://img.shields.io/badge/ROS2-Available-green)
 ![Static Badge](https://img.shields.io/badge/License-Apache%202.0-blue)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![GitHub Repo stars](https://img.shields.io/github/stars/robotmcp/ros-mcp-server?style=social)
+![GitHub last commit](https://img.shields.io/github/last-commit/robotmcp/ros-mcp-server)
+
 
 <p align="center">
   <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/framework.png"/>
 </p>
 
-The **ROS MCP Server** bridges large language models (LLMs) with robot control, allowing users to issue natural language commands that are translated into ROS/ROS2 instructions. It is compatible with any language model that supports MCP, can run with both **ROS** and **ROS2**, and communicatess via WebSocket for cross-platform compatibility. 
+ROS-MCP-Server connects large language models (such as Claude, GPT, and Gemini) with existing robots giving them bidirectional AI integration.  
 
-It does not require changes to existing robot code, since it is built on `rosbridge` — making it fast and easy to integrate into any robotic stack.
+With no changes to existing robot source code, this enables:
+- 🗣 **Commanding the robot in natural language** → instructions are translated into ROS/ROS2 commands.  
+- 👀 **Giving AI full visibility** → subscribe to topics, call services, read sensor data, and monitor robot state in real time.  
 
----
-## Highlights
 
-- **Universal compatibility**: Works with both ROS and ROS2 via rosbridge
-- **Cross-platform support**: Compatible with Linux, Windows, and macOS
-- **AI-ready**: Seamlessly integrates with LLMs and AI systems to drive robot behavior via natural language
-- **No ROS node modification required**: Fully interoperable with existing systems
+### ✅ Key Benefits  
 
----
-## Features
+- **No robot code changes** → only requires adding the `rosbridge` node.  
+- **True two-way communication** → LLMs can both *control* robots and *observe* everything happening in ROS (sensors, topics, parameters).  
+- **ROS1 & ROS2 support** → works with both versions out of the box.  
+- **MCP-compatible** → integrates with any MCP-enabled LLM (Claude Desktop, Gemini, ChatGPT, and beyond).   
 
-- List topics, services, and types
-- View message type details (incl. custom)
-- Publish/subscribe to any topic (incl. custom)
-- Call any service (incl. custom)
-- Get/set parameters
-- (Coming soon): Full Action support
-- (Coming soon): Permission controls for write access
+## 🎥 Examples in Action  
 
----
-# Examples in action:
-**Controlling the MOCA mobile manipulator in the NVIDIA Isaac Sim environment.** In this example, the user inputs commands directly into Claude desktop, which can now use the MCP server to directly control a robot simulated in Isaac Sim.
+🖥️ **Controlling the MOCA mobile manipulator in NVIDIA Isaac Sim**  
+Commands are entered into Claude Desktop, which uses the MCP server to directly drive the simulated robot.  
 
 <p align="center">
   <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/result.gif" />
+</p>  
+
+---
+🐕 **Controlling Unitree Go with natural language**  ([video](https://contoroinc.sharepoint.com/:v:/s/SandboxNewBusiness/EY1sQlnMV1pPgMFtOfS1-fIBZmt6BN4m1kPRUm9YX8ExXQ?e=9najbm))  
+The MCP server enables the Claude to interpret images from the robot's cameras, and then command the robot based on human natural language commands. 
+
+<p align="center">
+  <a href="https://contoroinc.sharepoint.com/:v:/s/SandboxNewBusiness/EY1sQlnMV1pPgMFtOfS1-fIBZmt6BN4m1kPRUm9YX8ExXQ?e=9najbm">
+    <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/Unitree_go.png" width="400" alt="Camera interpretation and reasoning with Unitree Go" />
+  </a>
 </p>
 
+---
+🏭 **Testing and debugging an industrial robot** ([Video](https://contoroinc.sharepoint.com/:v:/s/SandboxNewBusiness/EVh2t2_YG9BEl-Bw-8k6xucBcEv7XebJv1MtqLTIfrQpig?e=deu3YO))  
+- Connecting to an industrial robot enables the LLM to browse all ROS topics and services to assess the robot state. 
+- With no predefined context, the MCP server enables the LLM to query details about custom topic and service types and their syntax (00:28). 
+- Using only natural language, the operator calls the custom services to test and debug the robot(01:42). 
+
+<p align="center">
+  <a href="https://contoroinc.sharepoint.com/:v:/s/SandboxNewBusiness/EVh2t2_YG9BEl-Bw-8k6xucBcEv7XebJv1MtqLTIfrQpig?e=deu3YO">
+    <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/Contoro_robot.png" width="400" alt="Testing and debugging an industrial robot" />
+  </a>
+</p>
 
 ---
 
-# Getting Started
-Below are instructions to install and run the MCP server with your robot. The MCP server is agnostic to the version of ROS/ROS2 that you are running and works with any LLM that supports MCP. 
+## ⚙️ Features  
 
-Our examples use Claude desktop as the LLM client, but any client that supports the MCP protocol can be used!
+- **List topics, services, and message types** → explore everything available in your robot’s ROS environment.  
+- **View type definitions (incl. custom)** → understand the structure of any message.  
+- **Publish/subscribe to topics** → send commands or stream robot data in real time.  
+- **Call services (incl. custom)** → trigger robot functions directly.  
+- **Get/set parameters** → read or adjust robot settings on the fly.  
+- 🔜 **Action support** → upcoming support for ROS Actions.  
+- 🔜 **Permission controls** → manage access for safer deployments.  
+
+---
+
+## 🛠 Getting Started  
+
+The MCP server is version-agnostic (ROS1 or ROS2) and works with any MCP-compatible LLM.  
 
 <p align="center">
   <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/MCP_topology.png"/>
-</p>
+</p>  
 
-## Installation and Use
+### Installation  
 
-Follow the [installation guide](docs/installation.md) for full setup instructions on:
-- Cloning the ROS-MCP-server repository
-- Installing `uv` and `rosbridge`
-- Installing `Claude desktop`
-- Configuring Claude to connect to the ROS-MCP-server.
-- Installing and starting rosbridge on the target robot
-
----
-
-
-## More Examples and Tutorials
-Look into our [list of examples](examples/examples-index.md) for inspiration and tutorials of the ROS-MCP server in use. Feel free to submit PRs adding examples that you have successfully implemented!
-
-## Contributing
-
-Contributions are welcome!  
-Whether you're fixing a typo, adding a feature, or suggesting an improvement — thank you.  
-
-Please see the [contributing guidelines](docs/contributing.md) to get started.
+Follow the [installation guide](docs/installation.md) for step-by-step instructions:  
+1. Clone the repository  
+2. Install `uv` and `rosbridge`  
+3. Install Claude Desktop (or any MCP-enabled client)  
+4. Configure your client to connect to the ROS MCP Server  
+5. Start `rosbridge` on the target robot  
 
 ---
 
-## License
+## 📚 More Examples & Tutorials  
 
-This project is licensed under the [Apache License 2.0](LICENSE).
+Browse our [examples](examples/examples-index.md) to see the server in action.  
+We welcome community PRs with new examples and integrations!  
+
+---
+
+## 🤝 Contributing  
+
+We love contributions of all kinds:  
+- Bug fixes and documentation updates  
+- New features (e.g., Action support, permissions)  
+- Additional examples and tutorials  
+
+Check out the [contributing guidelines](docs/contributing.md) and see issues tagged **good first issue** to get started.  
+
+---
+
+## 📜 License  
+
+This project is licensed under the [Apache License 2.0](LICENSE).  
