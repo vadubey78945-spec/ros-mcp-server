@@ -59,7 +59,7 @@ The MCP server enables the Claude to interpret images from the robot's cameras, 
 
 ---
 
-## ⚙️ Features  
+## ⚙️ Features of the ROS MCP Server  
 
 - **List topics, services, and message types** → explore everything available in your robot’s ROS environment.  
 - **View type definitions (incl. custom)** → understand the structure of any message.  
