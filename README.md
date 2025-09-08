@@ -90,7 +90,7 @@ Follow the [installation guide](docs/installation.md) for step-by-step instructi
 
 ## 📚 More Examples & Tutorials  
 
-Browse our [examples](examples/examples-index.md) to see the server in action.  
+Browse our [examples](examples) to see the server in action.  
 We welcome community PRs with new examples and integrations!  
 
 ---
