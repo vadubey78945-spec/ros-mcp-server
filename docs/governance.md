@@ -1,4 +1,4 @@
-# Governance of Robot MCP Project
+# Governance
 
 1. **Neutral Standards**  
    The technology specifications of ROS-MCP-Server will be openly discussed and decided through a Technical Steering Committee (TSC) that includes representatives from participating industrial and research partners.
