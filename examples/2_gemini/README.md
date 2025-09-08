@@ -3,7 +3,27 @@
 ## Prerequisite
 - Installation of Gemini-CLI. [https://github.com/google-gemini/gemini-cli]
 - Installation of ROS or ROS2. Test if ROS is installed by running Turtlesim. If you are not sure, follow, this toturial [https://wiki.ros.org/ROS/Tutorials]
-- Installation of Rosbridge and ROS-MCP-Server [https://github.com/robotmcp/ros-mcp-server/blob/main/docs/installation.md]
+- Installation of ROS-MCP-Server except Section II (installation/settings of Claude desktop)  [https://github.com/robotmcp/ros-mcp-server/blob/main/docs/installation.md]
+
+## Update Gemini CLI MCP settings
+
+- Open `settings.json` file of Gemini CLI, located `~/.gemini/settings.json`
+- Add "mcpServer" setting below in the `settings.json`
+```json
+{
+  "mcpServers": {
+    "ros-mcp-server": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/<ABSOLUTE_PATH>/ros-mcp-server",
+        "run",
+        "server.py"
+      ]
+    }
+  }
+}
+```
 
 ## Demo Environment
 - Ubuntu 20.04
