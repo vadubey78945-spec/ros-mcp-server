@@ -39,9 +39,7 @@ Commands are entered into Claude Desktop, which uses the MCP server to directly 
 🐕 **Example - Controlling Unitree Go with natural language**  ([video](https://contoroinc.sharepoint.com/:v:/s/SandboxNewBusiness/EY1sQlnMV1pPgMFtOfS1-fIBZmt6BN4m1kPRUm9YX8ExXQ?e=9najbm))  
 The MCP server enables the Claude to interpret images from the robot's cameras, and then command the robot based on human natural language commands. 
 
-<p align="center">
-  <img src="https://contoro.com/asset/media/ROS_MCP_Demo_Quadruped_Short_GIF.gif" />
-</p>  
+![ROS-MCP Demo with Untiree Go2 Quadruped](https://contoro.com/asset/media/ROS_MCP_Demo_Quadruped_Short_GIF.gif)
 
 ---
 🏭 **Example - Debugging an industrial robot** ([Video](https://contoroinc.sharepoint.com/:v:/s/SandboxNewBusiness/EVh2t2_YG9BEl-Bw-8k6xucBcEv7XebJv1MtqLTIfrQpig?e=deu3YO))  
