@@ -1,6 +1,18 @@
-# Contributing to ROS MCP Server
+# Contributing to ROS-MCP-Server
 
-## How to Contribute
+---
+
+## 📌 Ways to Contribute
+
+- **Report issues**: Bug reports, documentation gaps, or feature requests.  
+- **Improve documentation**: Clarify installation steps, add tutorials, or share demos.  
+- **Submit code**: Bug fixes, new features, refactors, or tests.  
+- **Share use cases**: Show how you use ROS-MCP with your robot.  
+- **Community support**: Answer GitHub Discussions or ROS Discourse questions.  
+
+---
+
+## 🔀 How to Pull-request
 
 1. **Fork the repository:** Click the "Fork" button in the top right corner of the GitHub page.
 
