@@ -13,7 +13,7 @@ In this example, the **Unitree GO2 Edu** model was used, and the setup was teste
 ### Unitree GO2
 For more details, please refer to the [Unitree GO2 Documentation](https://support.unitree.com/home/en/developer/about_Go2).
 
-<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/4_unitree_go2/images/unitree_go2_real.png" width="300">
+<img src="../images/unitree_go2_real.png" width="300">
 
 
 ## Quick Start
@@ -30,10 +30,10 @@ However, by default, the Unitree GO2 does not have internet access, so you need 
 - **Access the Router Gateway**
     - Make sure your PC is connected to the router.
     - Run `ifconfig` in the terminal to check the assigned IP address. In this example, the IP is `192.168.50.13`.  
-    <img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/4_unitree_go2/images/unitree_go2_real_router_ip.png" width="500">
+    <img src="../images/unitree_go2_real_router_ip.png" width="500">
     
     - If the IP is in the form `192.168.x.x`, replace the last number with `1` and open it in a browser (e.g., `192.168.x.1`). In this case, it is `192.168.50.1`.  
-    <img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/4_unitree_go2/images/unitree_go2_real_router_connect.png" width="500">
+    <img src="../images/unitree_go2_real_router_connect.png" width="500">
 
 - **Login to the Router**
     - Enter the default username and password of the router.
@@ -43,7 +43,7 @@ However, by default, the Unitree GO2 does not have internet access, so you need 
 - **Change Router Gateway Address**
     - Navigate to **Advanced Settings → LAN** (the menu name may vary depending on the manufacturer/model).
     - Change the router’s IP address to `192.168.123.1`.  
-    <img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/4_unitree_go2/images/unitree_go2_real_router_ip_change.png" width="500">
+    <img src="../images/unitree_go2_real_router_ip_change.png" width="500">
     
     - Reason: The Unitree Go2 robot has a fixed IP address of `192.168.123.18`, so the router must assign addresses in the same subnet `192.168.123.x` to enable communication.
 
@@ -52,7 +52,7 @@ However, by default, the Unitree GO2 does not have internet access, so you need 
     - However, after disconnection/reconnection, the Unitree Go2’s IP may change. To prevent this, configure a **static IP assignment**.
     - Go to the **DHCP menu**.
     - Enable **Manual Assignment**, enter the Unitree Go2’s **MAC address**, and set the IP address to `192.168.123.18`.  
-    <img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/4_unitree_go2/images/unitree_go2_real_router_dhcp.png" width="500">
+    <img src="../images/unitree_go2_real_router_dhcp.png" width="500">
     
     - Note: Most routers can automatically detect the MAC address (depending on the model).
 
@@ -71,7 +71,7 @@ However, by default, the Unitree GO2 does not have internet access, so you need 
         ```
     - The default password is `123`.
     - After logging in, you can select the ROS version (ROS1 Noetic or ROS2 Foxy). In this example, Select ROS2 Foxy.  
-    <img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/4_unitree_go2/images/unitree_go2_real_ssh.png" width="500">
+    <img src="../images/unitree_go2_real_ssh.png" width="500">
  
 
 - **Check Internet Access**
@@ -147,13 +147,13 @@ Since The **ros-mcp-server** to recognize the robot, configure it to connect to 
 
 ### **Example 1** : Connect to robot
 By default, the **ros-mcp-server** can access the Unitree GO2 robot on the same network as the user's local PC. Therefore, the IP address of the Unitree GO2 robot is `192.168.123.18`.  
-<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/4_unitree_go2/images/unitree_go2_real_connect.png" width="500">
+<img src="../images/unitree_go2_real_connect.png" width="500">
 
 ### **Example 2** : Check available topics
-<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/4_unitree_go2/images/unitree_go2_real_topics.png" width="500">
+<img src="../images/unitree_go2_real_topics.png" width="500">
 
 ### **Example 3** : Receive camera data and analyze it
-<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/4_unitree_go2/images/unitree_go2_real_camera.png" width="500">
+<img src="../images/unitree_go2_real_camera.png" width="500">
 
 ## **Next Steps**
 The Unitree GO2 has various sensors and functionalities. Let's make use of them.

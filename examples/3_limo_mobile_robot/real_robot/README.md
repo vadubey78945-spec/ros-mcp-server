@@ -12,7 +12,7 @@ For this example, the LIMO Standard version with Ubuntu 18.04 and ROS1 Melodic i
 ### AgileX LIMO
 For more details, please refer to the [LIMO Documentation](https://docs.trossenrobotics.com/agilex_limo_docs/).
 
-<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/limo.png" width="300">
+<img src="../images/limo.png" width="300">
 
 
 - **Specification**
@@ -36,7 +36,7 @@ Before starting this tutorial, make sure you have the following installed. It is
 ## **Framework**
 The AI system communicates with the ROS-MCP via the MCP protocol, which connects through ROSbridge to LIMO's ROS nodes. ROSbridge converts ROS messages to JSON format over WebSocket, while the nodes handle topics to conrol hardware and exchange data.
 
-<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/limo_real_framework.png" width="700">
+<img src="../images/limo_real_framework.png" width="700">
 
 ## Quick Start
 
@@ -155,16 +155,16 @@ After connecting to the robot, you can inspect which topics the robot subscribes
 
 ### **Example 1** : Connect to robot
 
-<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/limo_real_connect.png" width="500">
+<img src="../images/limo_real_connect.png" width="500">
 
 ### **Example 2** : What can you do?
 
-<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/limo_real_whatcanyoudo1.png" width="500">
+<img src="../images/limo_real_whatcanyoudo1.png" width="500">
 
-<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/limo_real_whatcanyoudo2.png" width="500">
+<img src="../images/limo_real_whatcanyoudo2.png" width="500">
 
 ### **Example 3** : Simple Movement
-<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/limo_real_simple_movement.gif" width="800">
+<img src="../images/limo_real_simple_movement.gif" width="800">
 
 ## **Next Steps**
 
