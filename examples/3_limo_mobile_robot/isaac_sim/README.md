@@ -27,7 +27,7 @@ Follow the instructions on the [Isaac Sim Container Installation](https://docs.i
 ### 2. Download Isaac Sim WebRTC Streaming Client
 Follow the instructions on the [Isaac Sim WebRTC Streaming Client](https://docs.isaacsim.omniverse.nvidia.com/5.0.0/installation/download.html#isaac-sim-latest-release) to download and install the WebRTC streaming client.    
 In this example, the WebRTC Streaming Client was downloaded and executed as follows.  
-<img src="https://github.com/robotmcp/ros-mcp-server/blob/feature/lpigeon/limo_examples/docs/images/limo_examples/isaac_sim_webrtc_streaming_client_version.png" width="500">
+<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/isaac_sim_webrtc_streaming_client_version.png" width="500">
 
 ### 3. Check Installation
 To verify that the Isaac Sim Container and WebRTC Streaming Client are properly installed, please follow the steps below.
@@ -45,12 +45,12 @@ After that, move to the folder where you downloaded the Isaac Sim WebRTC Streami
 
 When the GUI is displayed as shown below, it means the application has been launched successfully.
 
-<img src="https://github.com/robotmcp/ros-mcp-server/blob/feature/lpigeon/limo_examples/docs/images/limo_examples/isaac_sim_webrtc_streaming_client.png" width="500">
+<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/isaac_sim_webrtc_streaming_client.png" width="500">
 
 If the above steps have been executed successfully, press the Connect button on the Isaac Sim WebRTC Streaming Client to check if the Isaac Sim screen appears.  
 ✅ **Note:** This example is based on installing and running the Isaac Sim container and the Isaac Sim WebRTC streaming client on the same local PC. Therefore, the server address for the Isaac Sim WebRTC Streaming Client is `127.0.0.1`. If the Isaac Sim container is running on another PC, you need to enter the IP address of that PC.
 
-<img src="https://github.com/robotmcp/ros-mcp-server/blob/feature/lpigeon/limo_examples/docs/images/limo_examples/isaac_sim_streaming.png" width="500">
+<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/isaac_sim_streaming.png" width="500">
 
 ### 4. Copy LIMO example USD file to Isaac Sim
 Copy the USD file of the LIMO robot created for this example to Isaac Sim.
@@ -66,12 +66,12 @@ If successfully copied, you can verify the USD file in the Isaac Sim screen as s
 Path : My Computer > / > example > limo_example.usd
 ```
 
-<img src="https://github.com/robotmcp/ros-mcp-server/blob/feature/lpigeon/limo_examples/docs/images/limo_examples/limo_isaac_sim_usd_path.png" width="500">
+<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/limo_isaac_sim_usd_path.png" width="500">
 
 ### 5. Launch LIMO Example
 Now, double-click the `limo_example.usd` file to run it in Isaac Sim. You should see the LIMO robot loading in the simulation environment as shown below.
 
-<img src="https://github.com/robotmcp/ros-mcp-server/blob/feature/lpigeon/limo_examples/docs/images/limo_examples/limo_isaac_sim.png" width="500">
+<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/limo_isaac_sim.png" width="500">
 
 ### 6. Check Simulation
 Now, let's check if the LIMO robot is running properly in Isaac Sim. Press the play button (▶︎) in Isaac Sim to start the simulation. Once the simulation starts, ROS2 topics that can be used by the LIMO robot will be created through a predefined [Action Graph](https://docs.isaacsim.omniverse.nvidia.com/latest/omnigraph/omnigraph_tutorial.html) within the USD file.  
@@ -80,7 +80,7 @@ You can verify the available topics for the LIMO robot by running the ros2 topic
 ```bash
 ros2 topic list
 ```
-<img src="https://github.com/robotmcp/ros-mcp-server/blob/feature/lpigeon/limo_examples/docs/images/limo_examples/limo_isaac_sim_topic_list.png" width="500">
+<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/limo_isaac_sim_topic_list.png" width="500">
 
 As shown in the figure, `/camera/image_raw`, `/cmd_vel`, and `/scan` must appear as essential topics.
 
@@ -110,15 +110,15 @@ Once all the above connections are completed, you can connect to and control the
 By default, the Isaac Sim Container is run with the `--network=host` option, so it can access the LIMO robot on the same network as the user's local PC. Therefore, the IP address of the LIMO robot is the same as the user's local PC.
 If the local PC's IP address, confirmed by the `ifconfig` command, is `192.168.50.88`, then the IP address of the LIMO robot will also be `192.168.50.88`.
 
-<img src="https://github.com/robotmcp/ros-mcp-server/blob/feature/lpigeon/limo_examples/docs/images/limo_examples/limo_isaac_sim_connect.png" width="500">
+<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/limo_isaac_sim_connect.png" width="500">
 
 ### **Example 2** : ROS2 Topic Check
 
-<img src="https://github.com/robotmcp/ros-mcp-server/blob/feature/lpigeon/limo_examples/docs/images/limo_examples/limo_isaac_sim_check_topic.png" width="500">
+<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/limo_isaac_sim_check_topic.png" width="500">
 
 ### **Example 3** : Simple Movement
 
-<img src="https://github.com/robotmcp/ros-mcp-server/blob/feature/lpigeon/limo_examples/docs/images/limo_examples/limo_isaac_sim_simple_movement.gif" width="1000">
+<img src="https://github.com/robotmcp/ros-mcp-server/tree/docs/lpigeon/move_example_images_folder/examples/3_limo_mobile_robot/images/limo_isaac_sim_simple_movement.gif" width="1000">
 
 ## **Next Steps**
 The LIMO is equipped with various sensors, such as vision and LiDAR sensors. Let's make use of them.
