@@ -31,4 +31,4 @@
 
 ## Demo Video 
 
-[![Gemini Demo with ROS MCP Server](./image/gemini-demo-ros-mcp.jpeg)](https://contoroinc.sharepoint.com/:v:/s/SandboxNewBusiness/EUF6igfJfQFDvb5NWyNqIjQBMPxBAREkyakO_Pp6DWqzsw?e=iylGVM)
+[![Gemini Demo with ROS MCP Server](./image/gemini-demo-ros-mcp.jpeg)](https://youtu.be/UAEG0qTADDk)
