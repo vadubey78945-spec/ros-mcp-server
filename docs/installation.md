@@ -1,4 +1,7 @@
 # Installation Guide
+
+> ⚠️ **Prerequisite**: You need either ROS installed locally on your machine OR access over the network to a robot/computer with ROS installed. This MCP server connects to ROS systems on a robot, so a running ROS environment is required.
+
 Installation includes the following steps:
 - Install the MCP server
   - Clone this repository
