@@ -1,7 +1,7 @@
 import json
 import time
 import os
-from typing import Optional
+from typing import Optional, List, Dict, Any
 
 from fastmcp import FastMCP
 
@@ -594,7 +594,7 @@ def subscribe_for_duration(
     )
 )
 def publish_for_durations(
-    topic: str = "", msg_type: str = "", messages: list = [], durations: list = []
+    topic: str = "", msg_type: str = "", messages: List[Dict[str, Any]] = [], durations: List[float] = []
 ) -> dict:
     """
     Publish a sequence of messages to a given ROS topic with delays in between.
@@ -602,8 +602,8 @@ def publish_for_durations(
     Args:
         topic (str): ROS topic name (e.g., "/cmd_vel")
         msg_type (str): ROS message type (e.g., "geometry_msgs/Twist")
-        messages (list): A list of message dictionaries (ROS-compatible payloads)
-        durations (list): A list of durations (seconds) to wait between messages
+        messages (List[Dict[str, Any]]): A list of message dictionaries (ROS-compatible payloads)
+        durations (List[float]): A list of durations (seconds) to wait between messages
 
     Returns:
         dict:
