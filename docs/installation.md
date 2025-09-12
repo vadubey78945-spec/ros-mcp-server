@@ -95,6 +95,18 @@ Any LLM client that supports MCP can be used. We use **Claude Desktop** for test
   <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/connected_mcp.png" width="500"/>
 </p>
 
+## 2.4. Troubleshooting
+- If the `ros-mcp-server` doesn't appear even after correctly configuring `claude_desktop_config.json`, try completely shutting down Claude Desktop using the commands below and then restarting it. This could be a Claude Desktop caching issue.
+```bash
+# Completely terminate Claude Desktop processes
+pkill -f claude-desktop
+# Or alternatively
+killall claude-desktop
+
+# Restart Claude Desktop
+claude-desktop
+```
+
 </details>
 
 <details>
