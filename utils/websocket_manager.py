@@ -81,7 +81,7 @@ def parse_image(raw: Optional[Union[str, bytes]]) -> Optional[dict]:
     if not os.path.exists("./camera"):
         os.makedirs("./camera")
 
-    success = cv2.imwrite("./camera/received_image.png", img_cv)
+    success = cv2.imwrite("./camera/received_image.jpeg", img_cv) # Save as JPEG
     if success:
         return result if isinstance(result, dict) else None
     else:
