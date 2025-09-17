@@ -24,7 +24,7 @@
 
 3. **Make your changes:** Edit files with your additions or corrections.  Please follow the existing format and style.  When adding a new function, make sure to include:
 
-    * The funtion name and format.
+    * The function name and format.
     * A brief description of the function's functionality.
     * Any parameters the function takes.
     * The return type of the function.
@@ -41,8 +41,39 @@
    git push origin "your_branch_name"
    ```
 
-6. **Create a pull request:** Navigate to the original repository and click the "New pull request" button. Select your fork and the branch you pushed. Provide a clear title and description of your changes.
+6. **Create a pull request:** Navigate to the original repository and click the "New pull request" button. Select your fork and the branch you pushed. **Important:** Target the `develop` branch (not `main`) for your pull request. Provide a clear title and description of your changes.
 
 7. **Review and merge:** Your pull request will be reviewed by the maintainers. They may suggest changes or ask for clarification. Once approved, your changes will be merged into the main repository.
 
 Thank you for contributing!
+
+---
+
+## Style & CI
+We use **Ruff** for both linting and formatting. CI requires:
+- `ruff format --check .`
+- `ruff check .`
+
+**Local setup**
+- Option A (recommended): `pre-commit install` (auto-fixes on commit)
+- Option B (manual): `ruff format . && ruff check --fix .`
+
+**Using Black locally?**
+- That's fine. Please align with:
+  - `line-length = 100`, target `py310`
+  - Avoid `--preview`, `--skip-string-normalization`, `--skip-magic-trailing-comma`
+- CI uses Ruff as the final arbiter; run `ruff format .` before pushing.
+
+---
+
+## License
+
+This project is licensed under the **Apache License 2.0**. By contributing to this project, you agree that your contributions will be licensed under the same license.
+
+**Key points for contributors:**
+- Your contributions will be licensed under Apache 2.0
+- You retain copyright to your contributions
+- You grant the project a perpetual, worldwide, non-exclusive license to use your contributions
+- No additional legal agreements required for standard contributions
+
+For the full license text, see [LICENSE](../LICENSE) in the project root.
