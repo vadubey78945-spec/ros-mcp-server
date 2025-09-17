@@ -1,5 +1,5 @@
 [project]
-name = "ros-mcp-server"
+name = "ros-mcp"
 version = "2.1.1"
 description = "MCP tool server for ROS using rosbridge WebSocket"
 readme = "README.md"
@@ -10,8 +10,10 @@ authors = [
     { name = "Jungsoo Lee"}
 ]
 
+
 dependencies = [
     "fastmcp>=2.11.3",
+    "jsonschema>=4.25.1",
     "mcp[cli]>=1.13.0",
     "opencv-python>=4.11.0.86",
     "pillow>=11.3.0",
@@ -23,6 +25,16 @@ dev = [
     "ruff",    # single tool for linting & formatting
     "pytest"   # for tests
 ]
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.data-files]
+"." = ["server.json"]
 
 # ---------------- Ruff configuration ----------------
 [tool.ruff]
@@ -40,3 +52,7 @@ quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 docstring-code-format = true
+
+# MCP Registry validation - required for PyPI package verification
+[tool.mcp]
+name = "io.github.robotmcp/ros-mcp-server"
