@@ -25,6 +25,8 @@ MCP_TRANSPORT = os.getenv("MCP_TRANSPORT", "stdio").lower()  # Default is stdio.
 MCP_HOST = os.getenv(
     "MCP_HOST", "127.0.0.1"
 )  # Default is localhost. Replace with the address of your remote MCP server.
+
+# MCP port settings (default=9000)
 MCP_PORT = int(
     os.getenv("MCP_PORT", "9000")
 )  # Default is 9000. Replace with the port of your remote MCP server.
