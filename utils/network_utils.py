@@ -80,7 +80,9 @@ def ping_ip_and_port(
             )
 
     except socket.timeout:
-        result["port_check"]["error"] = f"Port {port} connection timeout after {port_timeout} seconds"
+        result["port_check"]["error"] = (
+            f"Port {port} connection timeout after {port_timeout} seconds"
+        )
     except socket.gaierror as e:
         result["port_check"]["error"] = f"DNS resolution error: {str(e)}"
     except Exception as e:
