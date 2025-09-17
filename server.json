@@ -9,5 +9,10 @@
       "identifier": "ros-mcp",
       "version": "2.1.1"
     }
-  ]
+  ],
+  "transport": {
+    "type": "stdio",
+    "command": "ros-mcp",
+    "args": []
+  }
 }

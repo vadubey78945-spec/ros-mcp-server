@@ -1,13 +1,16 @@
 [project]
 name = "ros-mcp"
 version = "2.1.1"
-description = "MCP tool server for ROS using rosbridge WebSocket"
+description = "Connect AI Language Models with Robots on ROS using MCP"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache 2.0" }
 authors = [
     { name = "Rohit John Varghese"},
-    { name = "Jungsoo Lee"}
+    { name = "Jungsoo Lee"},
+    { name = "Youngmok Yun"},
+    { name = "Stefano Dalla Gasperina"}
+
 ]
 
 
@@ -25,6 +28,9 @@ dev = [
     "ruff",    # single tool for linting & formatting
     "pytest"   # for tests
 ]
+
+[project.scripts]
+ros-mcp = "server:main"
 
 [build-system]
 requires = ["setuptools>=45", "wheel"]
