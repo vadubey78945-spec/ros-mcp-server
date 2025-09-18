@@ -23,35 +23,28 @@
 
 
 import math
-import torch
 from dataclasses import MISSING
+from math import sqrt
 from typing import Literal
 
-
-from isaaclab.envs import ManagerBasedRLEnvCfg
-from isaaclab.utils import configclass
-
 import isaaclab.sim as sim_utils
+import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
+import torch
 from isaaclab.assets import ArticulationCfg, AssetBaseCfg
-from isaaclab.scene import InteractiveSceneCfg
-from isaaclab.sensors import ContactSensorCfg, RayCasterCfg, patterns
-from isaaclab.terrains import TerrainImporterCfg
-from isaaclab.utils import configclass
-from isaaclab_assets.robots.unitree import UNITREE_GO2_CFG
+from isaaclab.envs import ManagerBasedRLEnvCfg
 from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import ObservationGroupCfg as ObsGroup
 from isaaclab.managers import ObservationTermCfg as ObsTerm
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
+from isaaclab.scene import InteractiveSceneCfg
+from isaaclab.sensors import ContactSensorCfg, RayCasterCfg, patterns
+from isaaclab.terrains import TerrainImporterCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
-import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
-from math import sqrt
-
-
+from isaaclab_assets.robots.unitree import UNITREE_GO2_CFG
 from robots.g1.config import G1_CFG
-
 
 base_command = {}
 

@@ -26,17 +26,13 @@
 
 from __future__ import annotations
 
-
 """Launch Isaac Sim Simulator first."""
 import argparse
-from isaaclab.app import AppLauncher
-
-
-import cli_args
-import time
 import os
 import threading
 
+import cli_args
+from isaaclab.app import AppLauncher
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
@@ -84,7 +80,6 @@ simulation_app = app_launcher.app
 
 import omni
 
-
 ext_manager = omni.kit.app.get_app().get_extension_manager()
 ext_manager.set_extension_enabled_immediate("isaacsim.ros2.bridge", True)
 
@@ -98,43 +93,25 @@ ext_manager.set_extension_enabled_immediate("isaacsim.ros2.bridge", True)
 
 
 """Rest everything follows."""
-import gymnasium as gym
-import torch
 import carb
-
-
-
-from isaaclab_tasks.utils import get_checkpoint_path
+import custom_rl_env
+import gymnasium as gym
+import isaaclab.sim as sim_utils
+import omni.appwindow
+import rclpy
+import torch
+from agent_cfg import unitree_g1_agent_cfg, unitree_go2_agent_cfg
+from custom_rl_env import G1RoughEnvCfg, UnitreeGo2CustomEnvCfg
+from geometry_msgs.msg import Twist
 from isaaclab_rl.rsl_rl import (
     RslRlOnPolicyRunnerCfg,
     RslRlVecEnvWrapper,
 )
-import isaaclab.sim as sim_utils
-import omni.appwindow
-from rsl_rl.runners import OnPolicyRunner
-
-
-import rclpy
-from ros2 import (
-    RobotBaseNode,
-    add_camera,
-    add_copter_camera,
-    add_rtx_lidar,
-    pub_robo_data_ros2
-)
-from geometry_msgs.msg import Twist
-
-
-from agent_cfg import unitree_go2_agent_cfg, unitree_g1_agent_cfg
-from custom_rl_env import UnitreeGo2CustomEnvCfg, G1RoughEnvCfg
-import custom_rl_env
-
-from robots.copter.config import CRAZYFLIE_CFG
-from isaaclab.assets import Articulation
+from isaaclab_tasks.utils import get_checkpoint_path
 from isaacsim.storage.native import get_assets_root_path
-
-
 from omnigraph import create_front_cam_omnigraph
+from ros2 import RobotBaseNode, add_camera, add_rtx_lidar, pub_robo_data_ros2
+from rsl_rl.runners import OnPolicyRunner
 
 
 def sub_keyboard_event(event, *args, **kwargs) -> bool:
