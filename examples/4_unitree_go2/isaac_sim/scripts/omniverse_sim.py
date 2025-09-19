@@ -22,7 +22,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-
 from __future__ import annotations
 
 import argparse
@@ -98,8 +97,6 @@ ext_manager.set_extension_enabled_immediate("isaacsim.ros2.bridge", True)
 # ext_manager.set_extension_enabled_immediate("omni.kit.xr.system.openxr", True)
 # ext_manager.set_extension_enabled_immediate("omni.kit.xr.telemetry", True)
 # ext_manager.set_extension_enabled_immediate("omni.kit.xr.profile.vr", True)
-
-
 
 
 def sub_keyboard_event(event, *args, **kwargs) -> bool:
