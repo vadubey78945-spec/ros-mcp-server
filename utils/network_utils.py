@@ -1,7 +1,7 @@
+import platform
 import socket
 import subprocess
-import platform
-from typing import Dict, Optional
+from typing import Dict
 
 
 def ping_ip_and_port(
@@ -23,7 +23,7 @@ def ping_ip_and_port(
         "ip": ip,
         "port": port,
         "ping": {"success": False, "error": None, "response_time_ms": None},
-        "port": {"open": False, "error": None},
+        "port_check": {"open": False, "error": None},
         "overall_status": "unknown",
     }
 

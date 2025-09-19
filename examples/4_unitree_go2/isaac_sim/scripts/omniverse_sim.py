@@ -22,17 +22,35 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-"""Script to play a checkpoint if an RL agent from RSL-RL."""
 
 from __future__ import annotations
 
-"""Launch Isaac Sim Simulator first."""
 import argparse
 import os
 import threading
 
+import carb
 import cli_args
+import custom_rl_env
+import gymnasium as gym
+import isaaclab.sim as sim_utils
+import omni
+import omni.appwindow
+import rclpy
+import torch
+from agent_cfg import unitree_g1_agent_cfg, unitree_go2_agent_cfg
+from custom_rl_env import G1RoughEnvCfg, UnitreeGo2CustomEnvCfg
+from geometry_msgs.msg import Twist
 from isaaclab.app import AppLauncher
+from isaaclab_rl.rsl_rl import (
+    RslRlOnPolicyRunnerCfg,
+    RslRlVecEnvWrapper,
+)
+from isaaclab_tasks.utils import get_checkpoint_path
+from isaacsim.storage.native import get_assets_root_path
+from omnigraph import create_front_cam_omnigraph
+from ros2 import RobotBaseNode, add_camera, add_rtx_lidar, pub_robo_data_ros2
+from rsl_rl.runners import OnPolicyRunner
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
@@ -43,25 +61,17 @@ parser.add_argument(
     default=False,
     help="Disable fabric and use USD I/O operations.",
 )
-parser.add_argument(
-    "--num_envs", type=int, default=1, help="Number of environments to simulate."
-)
+parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to simulate.")
 parser.add_argument(
     "--task",
     type=str,
     default="Isaac-Velocity-Rough-Unitree-Go2-v0",
     help="Name of the task.",
 )
-parser.add_argument(
-    "--seed", type=int, default=None, help="Seed used for the environment"
-)
-parser.add_argument(
-    "--custom_env", type=str, default="", help="Setup the environment"
-)
+parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
+parser.add_argument("--custom_env", type=str, default="", help="Setup the environment")
 parser.add_argument("--robot", type=str, default="go2", help="Setup the robot")
-parser.add_argument(
-    "--robot_amount", type=int, default=1, help="Setup the robot amount"
-)
+parser.add_argument("--robot_amount", type=int, default=1, help="Setup the robot amount")
 
 
 # append RSL-RL cli arguments
@@ -78,8 +88,6 @@ app_launcher = AppLauncher(args_cli)
 simulation_app = app_launcher.app
 
 
-import omni
-
 ext_manager = omni.kit.app.get_app().get_extension_manager()
 ext_manager.set_extension_enabled_immediate("isaacsim.ros2.bridge", True)
 
@@ -92,30 +100,9 @@ ext_manager.set_extension_enabled_immediate("isaacsim.ros2.bridge", True)
 # ext_manager.set_extension_enabled_immediate("omni.kit.xr.profile.vr", True)
 
 
-"""Rest everything follows."""
-import carb
-import custom_rl_env
-import gymnasium as gym
-import isaaclab.sim as sim_utils
-import omni.appwindow
-import rclpy
-import torch
-from agent_cfg import unitree_g1_agent_cfg, unitree_go2_agent_cfg
-from custom_rl_env import G1RoughEnvCfg, UnitreeGo2CustomEnvCfg
-from geometry_msgs.msg import Twist
-from isaaclab_rl.rsl_rl import (
-    RslRlOnPolicyRunnerCfg,
-    RslRlVecEnvWrapper,
-)
-from isaaclab_tasks.utils import get_checkpoint_path
-from isaacsim.storage.native import get_assets_root_path
-from omnigraph import create_front_cam_omnigraph
-from ros2 import RobotBaseNode, add_camera, add_rtx_lidar, pub_robo_data_ros2
-from rsl_rl.runners import OnPolicyRunner
 
 
 def sub_keyboard_event(event, *args, **kwargs) -> bool:
-
     if len(custom_rl_env.base_command) > 0:
         if event.type == carb.input.KeyboardEventType.KEY_PRESS:
             if event.input.name == "W":
@@ -151,42 +138,27 @@ def sub_keyboard_event(event, *args, **kwargs) -> bool:
 
 
 def move_copter(copter):
-
     # TODO tmp solution for test
     if custom_rl_env.base_command["0"] == [0, 0, 0]:
-        copter_move_cmd = torch.tensor(
-            [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]], device="cuda:0"
-        )
+        copter_move_cmd = torch.tensor([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]], device="cuda:0")
 
     if custom_rl_env.base_command["0"] == [1, 0, 0]:
-        copter_move_cmd = torch.tensor(
-            [[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]], device="cuda:0"
-        )
+        copter_move_cmd = torch.tensor([[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]], device="cuda:0")
 
     if custom_rl_env.base_command["0"] == [-1, 0, 0]:
-        copter_move_cmd = torch.tensor(
-            [[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0]], device="cuda:0"
-        )
+        copter_move_cmd = torch.tensor([[-1.0, 0.0, 0.0, 0.0, 0.0, 0.0]], device="cuda:0")
 
     if custom_rl_env.base_command["0"] == [0, 1, 0]:
-        copter_move_cmd = torch.tensor(
-            [[0.0, 1.0, 0.0, 0.0, 0.0, 0.0]], device="cuda:0"
-        )
+        copter_move_cmd = torch.tensor([[0.0, 1.0, 0.0, 0.0, 0.0, 0.0]], device="cuda:0")
 
     if custom_rl_env.base_command["0"] == [0, -1, 0]:
-        copter_move_cmd = torch.tensor(
-            [[0.0, -1.0, 0.0, 0.0, 0.0, 0.0]], device="cuda:0"
-        )
+        copter_move_cmd = torch.tensor([[0.0, -1.0, 0.0, 0.0, 0.0, 0.0]], device="cuda:0")
 
     if custom_rl_env.base_command["0"] == [0, 0, 1]:
-        copter_move_cmd = torch.tensor(
-            [[0.0, 0.0, 1.0, 0.0, 0.0, 0.0]], device="cuda:0"
-        )
+        copter_move_cmd = torch.tensor([[0.0, 0.0, 1.0, 0.0, 0.0, 0.0]], device="cuda:0")
 
     if custom_rl_env.base_command["0"] == [0, 0, -1]:
-        copter_move_cmd = torch.tensor(
-            [[0.0, 0.0, -1.0, 0.0, 0.0, 0.0]], device="cuda:0"
-        )
+        copter_move_cmd = torch.tensor([[0.0, 0.0, -1.0, 0.0, 0.0, 0.0]], device="cuda:0")
 
     copter.write_root_velocity_to_sim(copter_move_cmd)
     copter.write_data_to_sim()
@@ -204,15 +176,18 @@ def setup_custom_env():
 
         if args_cli.custom_env == "small_warehouse":
             assets_root_path = get_assets_root_path()
-            cfg_scene = sim_utils.UsdFileCfg(usd_path=assets_root_path+"/Isaac/Environments/Digital_Twin_Warehouse/small_warehouse_digital_twin.usd")
+            cfg_scene = sim_utils.UsdFileCfg(
+                usd_path=assets_root_path
+                + "/Isaac/Environments/Digital_Twin_Warehouse/small_warehouse_digital_twin.usd"
+            )
             cfg_scene.func("/World/small_warehouse", cfg_scene, translation=(2.5, -1.5, 0.0))
 
         if args_cli.custom_env == "hospital":
             cfg_scene = sim_utils.UsdFileCfg(usd_path="./envs/hospital.usd")
             cfg_scene.func("/World/hospital", cfg_scene, translation=(0.0, 0.0, 0.0))
-    except:
+    except Exception as e:
         print(
-            "Error loading custom environment. You should download custom envs folder from: https://drive.google.com/drive/folders/1vVGuO1KIX1K6mD6mBHDZGm9nk2vaRyj3?usp=sharing"
+            f"Error loading custom environment. You should download custom envs folder from: https://drive.google.com/drive/folders/1vVGuO1KIX1K6mD6mBHDZGm9nk2vaRyj3?usp=sharing : {e}"
         )
 
 
@@ -240,7 +215,6 @@ def specify_cmd_for_robots(numv_envs):
 
 
 def run_sim():
-
     # acquire input interface
     _input = carb.input.acquire_input_interface()
     _appwindow = omni.appwindow.get_default_app_window()
@@ -289,9 +263,7 @@ def run_sim():
     )
 
     # load previously trained model
-    ppo_runner = OnPolicyRunner(
-        env, agent_cfg, log_dir=None, device=agent_cfg["device"]
-    )
+    ppo_runner = OnPolicyRunner(env, agent_cfg, log_dir=None, device=agent_cfg["device"])
     ppo_runner.load(resume_path)
     print(f"[INFO]: Loading model checkpoint from: {resume_path}")
 
@@ -306,7 +278,9 @@ def run_sim():
     base_node = RobotBaseNode(env_cfg.scene.num_envs)
     add_cmd_sub(env_cfg.scene.num_envs)
 
-    UnitreeL1_annotator_lst = add_rtx_lidar(env_cfg.scene.num_envs, args_cli.robot, "UnitreeL1", False)
+    UnitreeL1_annotator_lst = add_rtx_lidar(
+        env_cfg.scene.num_envs, args_cli.robot, "UnitreeL1", False
+    )
     ExtraLidar_annotator_lst = add_rtx_lidar(env_cfg.scene.num_envs, args_cli.robot, "Extra", False)
     annotator_lst = UnitreeL1_annotator_lst + ExtraLidar_annotator_lst
     add_camera(env_cfg.scene.num_envs, args_cli.robot)
@@ -336,4 +310,3 @@ def run_sim():
             # move_copter(copter)
 
     env.close()
-

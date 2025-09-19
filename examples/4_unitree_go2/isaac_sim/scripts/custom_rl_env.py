@@ -53,7 +53,9 @@ def constant_commands(env: ManagerBasedRLEnvCfg) -> torch.Tensor:
     global base_command
     """The generated command from the command generator."""
     # tensor_lst = torch.tensor([0, 0, 0], device=env.device).repeat(env.num_envs, 1)
-    tensor_lst = torch.tensor([0.0, 0.0, 0.0], dtype=torch.float32, device=env.device).repeat(env.num_envs, 1)
+    tensor_lst = torch.tensor([0.0, 0.0, 0.0], dtype=torch.float32, device=env.device).repeat(
+        env.num_envs, 1
+    )
     for i in range(env.num_envs):
         tensor_lst[i] = torch.tensor(base_command[str(i)], device=env.device)
     return tensor_lst
@@ -339,9 +341,7 @@ class G1RoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/torso_link"
 
         # rewards
-        self.rewards.feet_air_time.params["sensor_cfg"].body_names = (
-            ".*_ankle_roll_link"
-        )
+        self.rewards.feet_air_time.params["sensor_cfg"].body_names = ".*_ankle_roll_link"
         self.rewards.undesired_contacts = None
 
         # Terminations
