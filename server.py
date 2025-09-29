@@ -451,7 +451,7 @@ def subscribe_once(
                 ws_manager.send(unsubscribe_msg)
                 if "Image" in msg_type:
                     return {
-                        "message": "Image received successfully and saved in the MCP server. Run the 'analyze_image' tool to analyze it"
+                        "message": "Image received successfully and saved in the MCP server. Run the 'analyze_previously_received_image' tool to analyze it"
                     }
                 else:
                     return {"msg": msg_data.get("msg", {})}
@@ -1154,27 +1154,6 @@ def ping_robot(ip: str, port: int, ping_timeout: float = 2.0, port_timeout: floa
 ##                      IMAGE ANALYSIS
 ##
 ## ############################################################################################## ##
-@mcp.tool(
-    description=(
-        "First, subscribe to an Image topic using 'subscribe_once' to save an image.\n"
-        "Then, use this tool to analyze the saved image\n"
-    )
-)
-def analyze_previously_received_image():
-    """
-    Analyze the received image.
-
-    This tool loads the previously saved image from './camera/received_image.jpeg'
-    (which must have been created by 'parse_image' or 'subscribe_once'), and converts
-    it into an MCP-compatible ImageContent format so that the LLM can interpret it.
-    """
-    path = "./camera/received_image.jpeg"
-    if not os.path.exists(path):
-        return {"error": "No previously received image found at ./camera/received_image.jpeg"}
-    image = PILImage.open(path)
-    return _encode_image_to_imagecontent(image)
-
-
 def _encode_image_to_imagecontent(image):
     """
     Encodes a PIL Image to a format compatible with ImageContent.
@@ -1190,6 +1169,27 @@ def _encode_image_to_imagecontent(image):
     img_bytes = buffer.getvalue()
     img_obj = Image(data=img_bytes, format="jpeg")
     return img_obj.to_image_content()
+
+
+@mcp.tool(
+    description=(
+        "First, subscribe to an Image topic using 'subscribe_once' to save an image.\n"
+        "Then, use this tool to analyze the saved image\n"
+    )
+)
+def analyze_previously_received_image():
+    """
+    Analyze the previously received image saved at ./camera/received_image.jpeg
+
+    This tool loads the previously saved image from './camera/received_image.jpeg'
+    (which must have been created by 'parse_image' or 'subscribe_once'), and converts
+    it into an MCP-compatible ImageContent format so that the LLM can interpret it.
+    """
+    path = "./camera/received_image.jpeg"
+    if not os.path.exists(path):
+        return {"error": "No image found at ./camera/received_image.jpeg"}
+    img = PILImage.open(path)
+    return _encode_image_to_imagecontent(img)
 
 
 def main():
