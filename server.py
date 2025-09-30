@@ -360,6 +360,96 @@ def get_subscribers_for_topic(topic: str) -> dict:
 
 @mcp.tool(
     description=(
+        "Get comprehensive information about all ROS topics including publishers, subscribers, and message types. Note that this may take time to execute when three are a large number of topics since it queries each one by one under the hood. \n"
+        "Example:\n"
+        "inspect_all_topics()"
+    )
+)
+def inspect_all_topics() -> dict:
+    """
+    Get comprehensive information about all ROS topics including publishers, subscribers, and message types.
+
+    Returns:
+        dict: Contains detailed information about all topics including:
+            - Topic names and message types
+            - Publishers for each topic
+            - Subscribers for each topic
+            - Connection counts and statistics
+    """
+    # First get all topics
+    topics_message = {
+        "op": "call_service",
+        "service": "/rosapi/topics",
+        "type": "rosapi/Topics",
+        "args": {},
+        "id": "inspect_all_topics_request_1",
+    }
+
+    with ws_manager:
+        topics_response = ws_manager.request(topics_message)
+
+        if not topics_response or "values" not in topics_response:
+            return {"error": "Failed to get topics list"}
+
+        topics = topics_response["values"].get("topics", [])
+        types = topics_response["values"].get("types", [])
+        topic_details = {}
+
+        # Get details for each topic
+        topic_errors = []
+        for i, topic in enumerate(topics):
+            # Get topic type
+            topic_type = types[i] if i < len(types) else "unknown"
+
+            # Get publishers for this topic
+            publishers_message = {
+                "op": "call_service",
+                "service": "/rosapi/publishers",
+                "type": "rosapi/Publishers",
+                "args": {"topic": topic},
+                "id": f"get_publishers_{topic.replace('/', '_')}",
+            }
+
+            publishers_response = ws_manager.request(publishers_message)
+            publishers = []
+            if publishers_response and "values" in publishers_response:
+                publishers = publishers_response["values"].get("publishers", [])
+            elif publishers_response and "error" in publishers_response:
+                topic_errors.append(f"Topic {topic} publishers: {publishers_response['error']}")
+
+            # Get subscribers for this topic
+            subscribers_message = {
+                "op": "call_service",
+                "service": "/rosapi/subscribers",
+                "type": "rosapi/Subscribers",
+                "args": {"topic": topic},
+                "id": f"get_subscribers_{topic.replace('/', '_')}",
+            }
+
+            subscribers_response = ws_manager.request(subscribers_message)
+            subscribers = []
+            if subscribers_response and "values" in subscribers_response:
+                subscribers = subscribers_response["values"].get("subscribers", [])
+            elif subscribers_response and "error" in subscribers_response:
+                topic_errors.append(f"Topic {topic} subscribers: {subscribers_response['error']}")
+
+            topic_details[topic] = {
+                "type": topic_type,
+                "publishers": publishers,
+                "subscribers": subscribers,
+                "publisher_count": len(publishers),
+                "subscriber_count": len(subscribers),
+            }
+
+        return {
+            "total_topics": len(topics),
+            "topics": topic_details,
+            "topic_errors": topic_errors,  # Include any errors encountered during inspection
+        }
+
+
+@mcp.tool(
+    description=(
         "Subscribe to a ROS topic and return the first message received.\n"
         "Example:\n"
         "subscribe_once(topic='/cmd_vel', msg_type='geometry_msgs/msg/TwistStamped')\n"
@@ -934,11 +1024,11 @@ def get_service_providers(service: str) -> dict:
     if not service or not service.strip():
         return {"error": "Service name cannot be empty"}
 
-    # rosbridge service call to get service providers
+    # rosbridge service call to get service providers (using service_node like inspect_all_services)
     message = {
         "op": "call_service",
-        "service": "/rosapi/service_providers",
-        "type": "rosapi/ServiceProviders",
+        "service": "/rosapi/service_node",
+        "type": "rosapi/ServiceNode",
         "args": {"service": service},
         "id": f"get_service_providers_request_{service.replace('/', '_')}",
     }
@@ -947,17 +1037,34 @@ def get_service_providers(service: str) -> dict:
     with ws_manager:
         response = ws_manager.request(message)
 
-    # Return service providers if present
-    if response and "values" in response:
-        providers = response["values"].get("providers", [])
-        return {"service": service, "providers": providers, "provider_count": len(providers)}
+    # Return service providers if present (using same logic as inspect_all_services)
+    providers = []
+
+    # Handle different response formats safely
+    if response and isinstance(response, dict):
+        if "values" in response:
+            node = response["values"].get("node", "")
+            if node:
+                providers = [node]
+        elif "result" in response:
+            node = response["result"].get("node", "")
+            if node:
+                providers = [node]
+        elif "error" in response:
+            return {"error": f"Service call failed: {response['error']}"}
+    elif response is False:
+        return {"error": f"No response received for service {service}"}
+    elif response is True:
+        return {"error": f"Unexpected boolean response for service {service}"}
     else:
         return {"error": f"Failed to get providers for service {service}"}
+
+    return {"service": service, "providers": providers, "provider_count": len(providers)}
 
 
 @mcp.tool(
     description=(
-        "Get comprehensive information about all services including types and providers.\n"
+        "Get comprehensive information about all services including types and providers. Note that this may take time to execute when three are a large number of services since it queries each one by one under the hood. \n"
         "Example:\n"
         "inspect_all_services()"
     )
@@ -1007,21 +1114,36 @@ def inspect_all_services() -> dict:
             elif type_response and "error" in type_response:
                 service_errors.append(f"Service {service}: {type_response['error']}")
 
-            # Get service providers
-            providers_message = {
+            # Get service provider (using service_node instead of service_providers)
+            provider_message = {
                 "op": "call_service",
-                "service": "/rosapi/service_providers",
-                "type": "rosapi/ServiceProviders",
+                "service": "/rosapi/service_node",
+                "type": "rosapi/ServiceNode",
                 "args": {"service": service},
-                "id": f"get_providers_{service.replace('/', '_')}",
+                "id": f"get_provider_{service.replace('/', '_')}",
             }
 
-            providers_response = ws_manager.request(providers_message)
+            provider_response = ws_manager.request(provider_message)
             providers = []
-            if providers_response and "values" in providers_response:
-                providers = providers_response["values"].get("providers", [])
-            elif providers_response and "error" in providers_response:
-                service_errors.append(f"Service {service} providers: {providers_response['error']}")
+
+            # Handle different response formats safely
+            if provider_response and isinstance(provider_response, dict):
+                if "values" in provider_response:
+                    node = provider_response["values"].get("node", "")
+                    if node:
+                        providers = [node]
+                elif "result" in provider_response:
+                    node = provider_response["result"].get("node", "")
+                    if node:
+                        providers = [node]
+                elif "error" in provider_response:
+                    service_errors.append(
+                        f"Service {service} provider: {provider_response['error']}"
+                    )
+            elif provider_response is False:
+                service_errors.append(f"Service {service} provider: No response received")
+            elif provider_response is True:
+                service_errors.append(f"Service {service} provider: Unexpected boolean response")
 
             service_details[service] = {
                 "type": service_type,
