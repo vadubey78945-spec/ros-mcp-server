@@ -53,16 +53,10 @@ jobs:
           CSV=".metrics/download_metrics.csv"
 
           if [ ! -f "$CSV" ]; then
-            echo "date,release_tag,asset_name,downloads,total_release_downloads" > "$CSV"
+            echo "date,release_tag,total_downloads" > "$CSV"
           fi
 
-          jq -r '.[] | 
-            if (.assets | length > 0) then
-              .assets[] as $asset | 
-              "\(.published_at[0:10]),\(.tag_name),\($asset.name),\($asset.download_count),\([.assets[].download_count] | add)"
-            else
-              "\(.published_at[0:10]),\(.tag_name),,0,0"
-            end' \
+          jq -r '.[] | "\(.published_at[0:10]),\(.tag_name),\([.assets[].download_count] | add)"' \
             .metrics/downloads.json >> "$CSV"
 
           echo "Updated metrics summary:"
