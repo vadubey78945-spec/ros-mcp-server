@@ -52,12 +52,9 @@ jobs:
           mkdir -p .metrics
           CSV=".metrics/download_metrics.csv"
 
-          if [ ! -f "$CSV" ]; then
-            echo "date,release_tag,total_downloads" > "$CSV"
-          fi
-
-          jq -r '.[] | "\(.published_at[0:10]),\(.tag_name),\([.assets[].download_count] | add)"' \
-            .metrics/downloads.json >> "$CSV"
+          (echo "date,release_tag,total_downloads"; \
+           jq -r '.[] | "\(.published_at[0:10]),\(.tag_name),\([.assets[].download_count] | add)"' \
+            .metrics/downloads.json) > "$CSV"
 
           echo "Updated metrics summary:"
           tail -n 5 "$CSV"
