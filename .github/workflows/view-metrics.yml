@@ -1,0 +1,75 @@
+name: Track View Metrics via GitHub App
+
+on:
+  schedule:
+    - cron: "0 */2 * * *"    # Every 2 hours
+  workflow_dispatch:
+
+jobs:
+  track-view-metrics:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: metrics
+          fetch-depth: 0
+
+      - name: Authenticate as GitHub App
+        id: generate_token
+        uses: tibdex/github-app-token@v2.1.0
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Retrieve view data
+        env:
+          TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          mkdir -p .metrics
+          echo "Fetching view data for ${{ github.repository }}..."
+          curl -s -H "Authorization: Bearer $TOKEN" \
+               -H "Accept: application/vnd.github+json" \
+               "https://api.github.com/repos/${{ github.repository }}/traffic/views?per=day" \
+               > .metrics/views.json
+          jq '. | {total_14d: .count, unique_14d: .uniques, days: (.views|length)}' .metrics/views.json
+
+      - name: Update unified view metrics CSV
+        run: |
+          mkdir -p .metrics
+          CSV=".metrics/view_metrics.csv"
+
+          TOTAL=$(jq '.count' .metrics/views.json)
+          UNIQUE_TOTAL=$(jq '.uniques' .metrics/views.json)
+
+          if [ ! -f "$CSV" ]; then
+            echo "date,views,unique_viewers,total_views_14d,unique_viewers_14d" > "$CSV"
+          fi
+
+          jq -r --arg total "$TOTAL" --arg uniques "$UNIQUE_TOTAL" \
+            '.views[] | "\(.timestamp[0:10]),\(.count),\(.uniques),\($total),\($uniques)"' \
+            .metrics/views.json \
+          | while IFS= read -r line; do
+              date=$(echo "$line" | cut -d',' -f1)
+              if ! grep -q "^$date," "$CSV"; then
+                echo "$line" >> "$CSV"
+              fi
+            done
+
+          echo "Updated metrics summary:"
+          tail -n 5 "$CSV"
+
+      - name: Commit and push results
+        env:
+          TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          git config user.name "ViewMetrics[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .metrics/view_metrics.csv
+          git commit -m "Automated update: repository view metrics" || echo "No new data to commit."
+          git pull --rebase origin metrics || true
+          git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }} HEAD
