@@ -1,7 +1,3 @@
-Vaibhav Dubey
-Again 
-Vaibhav Dubey
-
 # ROS MCP Server 🧠⇄🤖
 
 ![Static Badge](https://img.shields.io/badge/ROS-Available-green)
@@ -13,10 +9,13 @@ Vaibhav Dubey
 ![GitHub last commit](https://img.shields.io/github/last-commit/robotmcp/ros-mcp-server)
 
 <!-- mcp-name: io.github.robotmcp/ros-mcp-server -->
+Hi! This is Vaibhav Dubey
 Hi! This is coming from a test repository! Can you hear us?
 
 Hi This is coming from another test repo
 Can u hear me
+
+Repo has been pushed by Vaibhav Dubey
 <p align="center">
   <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/framework.png"/>
 </p>
