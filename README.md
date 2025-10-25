@@ -9,6 +9,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/robotmcp/ros-mcp-server)
 
 <!-- mcp-name: io.github.robotmcp/ros-mcp-server -->
+Hi! This is coming from a test repository! Can you hear us?
 
 <p align="center">
   <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/framework.png"/>
