@@ -11,6 +11,8 @@
 <!-- mcp-name: io.github.robotmcp/ros-mcp-server -->
 Hi! This is coming from a test repository! Can you hear us?
 
+Hi This is coming from another test repo
+Can u hear me
 <p align="center">
   <img src="https://github.com/robotmcp/ros-mcp-server/blob/main/docs/images/framework.png"/>
 </p>
